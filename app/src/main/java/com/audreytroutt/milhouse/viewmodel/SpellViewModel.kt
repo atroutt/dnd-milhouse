@@ -3,6 +3,7 @@ package com.audreytroutt.milhouse.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.audreytroutt.milhouse.data.api.SpellImportService
 import com.audreytroutt.milhouse.data.model.Spell
 import com.audreytroutt.milhouse.data.repository.SpellRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -12,8 +13,16 @@ import kotlinx.coroutines.launch
 data class SpellFilter(
     val query: String = "",
     val levelFilter: Int? = null, // null = all, 0 = cantrips
-    val preparedOnly: Boolean = false
+    val preparedOnly: Boolean = false,
+    val classFilter: String? = null  // null = all classes
 )
+
+sealed class ImportState {
+    object Idle : ImportState()
+    data class Loading(val fetched: Int, val total: Int) : ImportState()
+    object Done : ImportState()
+    data class Error(val message: String) : ImportState()
+}
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SpellViewModel(private val repository: SpellRepository) : ViewModel() {
@@ -31,18 +40,32 @@ class SpellViewModel(private val repository: SpellRepository) : ViewModel() {
                         spell.description.contains(f.query, ignoreCase = true)
                     val matchesLevel = f.levelFilter == null || spell.level == f.levelFilter
                     val matchesPrepared = !f.preparedOnly || spell.isPrepared
-                    matchesQuery && matchesLevel && matchesPrepared
+                    val matchesClass = f.classFilter == null ||
+                        spell.classes.split(",").any { it.trim().equals(f.classFilter, ignoreCase = true) }
+                    matchesQuery && matchesLevel && matchesPrepared && matchesClass
                 }
             }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val allClasses: StateFlow<List<String>> = repository.getAll()
+        .map { spells ->
+            spells.flatMap { spell ->
+                spell.classes.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+            }.distinct().sorted()
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _editSpell = MutableStateFlow<Spell?>(null)
     val editSpell: StateFlow<Spell?> = _editSpell.asStateFlow()
 
+    private val _importState = MutableStateFlow<ImportState>(ImportState.Idle)
+    val importState: StateFlow<ImportState> = _importState.asStateFlow()
+
     fun setQuery(query: String) = _filter.update { it.copy(query = query) }
     fun setLevelFilter(level: Int?) = _filter.update { it.copy(levelFilter = level) }
     fun setPreparedOnly(only: Boolean) = _filter.update { it.copy(preparedOnly = only) }
+    fun setClassFilter(cls: String?) = _filter.update { it.copy(classFilter = cls) }
 
     fun loadSpell(id: Long) {
         viewModelScope.launch { _editSpell.value = repository.getById(id) }
@@ -63,6 +86,23 @@ class SpellViewModel(private val repository: SpellRepository) : ViewModel() {
     fun togglePrepared(spell: Spell) {
         viewModelScope.launch { repository.update(spell.copy(isPrepared = !spell.isPrepared)) }
     }
+
+    fun importSrdSpells() {
+        viewModelScope.launch {
+            _importState.value = ImportState.Loading(0, 0)
+            try {
+                val spells = SpellImportService().fetchAllSpells { fetched, total ->
+                    _importState.value = ImportState.Loading(fetched, total)
+                }
+                repository.insertAll(spells)
+                _importState.value = ImportState.Done
+            } catch (e: Exception) {
+                _importState.value = ImportState.Error(e.message ?: "Import failed")
+            }
+        }
+    }
+
+    fun dismissImportError() { _importState.value = ImportState.Idle }
 
     companion object {
         fun factory(repository: SpellRepository): ViewModelProvider.Factory =

@@ -5,7 +5,8 @@
       "Bash(sed -i '' '/^hilt-android = { id = /d' /Users/auditty/Developer/MilhouseApp/gradle/libs.versions.toml)",
       "WebSearch",
       "WebFetch(domain:mvnrepository.com)",
-      "WebFetch(domain:central.sonatype.com)"
+      "WebFetch(domain:central.sonatype.com)",
+      "WebFetch(domain:magicalscrolls.com)"
     ]
   }
 }

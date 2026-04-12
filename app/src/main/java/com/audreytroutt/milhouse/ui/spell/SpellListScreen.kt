@@ -8,20 +8,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.audreytroutt.milhouse.MilhouseApplication
 import com.audreytroutt.milhouse.data.model.Spell
 import com.audreytroutt.milhouse.ui.components.FilterChipRow
 import com.audreytroutt.milhouse.ui.components.LevelBadge
 import com.audreytroutt.milhouse.ui.components.SearchField
-import com.audreytroutt.milhouse.viewmodel.SpellFilter
+import com.audreytroutt.milhouse.viewmodel.ImportState
 import com.audreytroutt.milhouse.viewmodel.SpellViewModel
 
 @Composable
@@ -36,6 +37,8 @@ fun SpellListScreen(
 ) {
     val spells by viewModel.spells.collectAsState()
     val filter by viewModel.filter.collectAsState()
+    val importState by viewModel.importState.collectAsState()
+    val allClasses by viewModel.allClasses.collectAsState()
 
     val levelChips = buildList {
         add("All" to (filter.levelFilter == null && !filter.preparedOnly))
@@ -44,26 +47,77 @@ fun SpellListScreen(
         add("Prepared" to filter.preparedOnly)
     }
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = { onNavigateToEdit(null) }) {
-                Icon(Icons.Default.Add, contentDescription = "Add Spell")
-            }
-        },
-        contentWindowInsets = WindowInsets(0)
-    ) { scaffoldPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding)
-                .padding(scaffoldPadding)
-        ) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(contentPadding)
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             Text(
                 text = "Spells",
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
+
+            // Import progress banner
+            when (val state = importState) {
+                is ImportState.Loading -> {
+                    val progress = if (state.total > 0) state.fetched.toFloat() / state.total else 0f
+                    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+                        Text(
+                            text = if (state.total > 0)
+                                "Importing SRD spells… ${state.fetched} / ${state.total}"
+                            else
+                                "Fetching spell list…",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        if (state.total > 0) {
+                            LinearProgressIndicator(
+                                progress = { progress },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        } else {
+                            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                        }
+                        Spacer(Modifier.height(8.dp))
+                    }
+                }
+                is ImportState.Done -> {
+                    Text(
+                        text = "${spells.size} SRD spells imported.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    )
+                }
+                is ImportState.Error -> {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = "Import failed: ${state.message}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.weight(1f)
+                            )
+                            TextButton(onClick = { viewModel.dismissImportError() }) {
+                                Text("Dismiss")
+                            }
+                        }
+                    }
+                }
+                else -> {}
+            }
+
             SearchField(
                 query = filter.query,
                 onQueryChange = viewModel::setQuery,
@@ -87,11 +141,51 @@ fun SpellListScreen(
                         }
                     }
                 },
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier.padding(bottom = 4.dp)
             )
-            if (spells.isEmpty()) {
+            if (allClasses.isNotEmpty()) {
+                val classChips = buildList {
+                    add("All Classes" to (filter.classFilter == null))
+                    allClasses.forEach { cls -> add(cls to (filter.classFilter == cls)) }
+                }
+                FilterChipRow(
+                    chips = classChips,
+                    onChipClick = { label ->
+                        if (label == "All Classes") viewModel.setClassFilter(null)
+                        else viewModel.setClassFilter(if (filter.classFilter == label) null else label)
+                    },
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
+            if (spells.isEmpty() && importState == ImportState.Idle) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No spells yet. Tap + to add one.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            "No spells yet.",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Button(onClick = { viewModel.importSrdSpells() }) {
+                            Icon(
+                                Icons.Default.Download,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text("Import SRD Spells")
+                        }
+                        Text(
+                            "Downloads ~319 spells from dnd5eapi.co",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
+            } else if (spells.isEmpty() && importState is ImportState.Loading) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
                 }
             } else {
                 LazyColumn(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp)) {
@@ -105,6 +199,15 @@ fun SpellListScreen(
                     }
                 }
             }
+        }
+
+        FloatingActionButton(
+            onClick = { onNavigateToEdit(null) },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Add Spell")
         }
     }
 }

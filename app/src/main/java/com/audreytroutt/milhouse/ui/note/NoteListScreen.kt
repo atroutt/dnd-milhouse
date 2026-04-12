@@ -37,19 +37,13 @@ fun NoteListScreen(
     val tagFilter by viewModel.tagFilter.collectAsState()
     val allTags by viewModel.allTags.collectAsState()
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = { onNavigateToEdit(null) }) {
-                Icon(Icons.Default.Add, contentDescription = "Add Note")
-            }
-        },
-        contentWindowInsets = WindowInsets(0)
-    ) { scaffoldPadding ->
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(contentPadding)
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding)
-                .padding(scaffoldPadding)
+            modifier = Modifier.fillMaxSize()
         ) {
             Text(
                 text = "Notes",
@@ -97,6 +91,14 @@ fun NoteListScreen(
                     }
                 }
             }
+        }
+        FloatingActionButton(
+            onClick = { onNavigateToEdit(null) },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Add Note")
         }
     }
 }

@@ -41,19 +41,13 @@ fun ActionListScreen(
         ACTION_TYPES.forEach { type -> add(type to (typeFilter == type)) }
     }
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = { onNavigateToEdit(null) }) {
-                Icon(Icons.Default.Add, contentDescription = "Add Action")
-            }
-        },
-        contentWindowInsets = WindowInsets(0)
-    ) { scaffoldPadding ->
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(contentPadding)
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding)
-                .padding(scaffoldPadding)
+            modifier = Modifier.fillMaxSize()
         ) {
             Text(
                 text = "Actions",
@@ -87,6 +81,14 @@ fun ActionListScreen(
                     }
                 }
             }
+        }
+        FloatingActionButton(
+            onClick = { onNavigateToEdit(null) },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Add Action")
         }
     }
 }

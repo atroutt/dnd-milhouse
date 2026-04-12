@@ -15,6 +15,12 @@ interface SpellDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(spell: Spell): Long
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(spells: List<Spell>)
+
+    @Query("SELECT COUNT(*) FROM spells")
+    suspend fun count(): Int
+
     @Update
     suspend fun update(spell: Spell)
 

@@ -40,19 +40,13 @@ fun AbilityListScreen(
         ABILITY_CATEGORIES.forEach { cat -> add(cat to (categoryFilter == cat)) }
     }
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = { onNavigateToEdit(null) }) {
-                Icon(Icons.Default.Add, contentDescription = "Add Ability")
-            }
-        },
-        contentWindowInsets = WindowInsets(0)
-    ) { scaffoldPadding ->
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(contentPadding)
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding)
-                .padding(scaffoldPadding)
+            modifier = Modifier.fillMaxSize()
         ) {
             Text(
                 text = "Abilities",
@@ -86,6 +80,14 @@ fun AbilityListScreen(
                     }
                 }
             }
+        }
+        FloatingActionButton(
+            onClick = { onNavigateToEdit(null) },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Add Ability")
         }
     }
 }
