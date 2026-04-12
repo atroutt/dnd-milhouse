@@ -20,4 +20,7 @@ interface ActionDao {
 
     @Delete
     suspend fun delete(action: DndAction)
+
+    @Query("DELETE FROM actions WHERE characterId = :characterId")
+    suspend fun deleteAllForCharacter(characterId: Long)
 }

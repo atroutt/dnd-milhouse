@@ -20,4 +20,7 @@ interface AbilityDao {
 
     @Delete
     suspend fun delete(ability: Ability)
+
+    @Query("DELETE FROM abilities WHERE characterId = :characterId")
+    suspend fun deleteAllForCharacter(characterId: Long)
 }

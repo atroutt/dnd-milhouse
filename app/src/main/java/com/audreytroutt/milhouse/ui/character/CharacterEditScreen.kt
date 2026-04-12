@@ -72,7 +72,7 @@ fun CharacterEditScreen(
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             title = { Text("Delete Character") },
-            text = { Text("Delete \"$name\"? Their spells, abilities, actions, and notes will remain in the database but won't be accessible. This cannot be undone.") },
+            text = { Text("Delete \"$name\"? All of their spells, abilities, actions, and notes will also be permanently deleted. This cannot be undone.") },
             confirmButton = {
                 TextButton(onClick = {
                     existingCharacter?.let { viewModel.deleteCharacter(it) }

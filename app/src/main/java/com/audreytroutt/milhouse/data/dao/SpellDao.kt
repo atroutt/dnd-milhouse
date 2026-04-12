@@ -23,4 +23,7 @@ interface SpellDao {
 
     @Delete
     suspend fun delete(spell: Spell)
+
+    @Query("DELETE FROM spells WHERE characterId = :characterId")
+    suspend fun deleteAllForCharacter(characterId: Long)
 }

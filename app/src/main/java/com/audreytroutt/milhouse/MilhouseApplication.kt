@@ -16,7 +16,15 @@ class MilhouseApplication : Application() {
             .addMigrations(MIGRATION_1_2)
             .build()
     }
-    val characterRepository: CharacterRepository by lazy { CharacterRepository(database.characterDao()) }
+    val characterRepository: CharacterRepository by lazy {
+        CharacterRepository(
+            database.characterDao(),
+            database.spellDao(),
+            database.abilityDao(),
+            database.actionDao(),
+            database.noteDao()
+        )
+    }
     val spellRepository: SpellRepository by lazy { SpellRepository(database.spellDao()) }
     val abilityRepository: AbilityRepository by lazy { AbilityRepository(database.abilityDao()) }
     val actionRepository: ActionRepository by lazy { ActionRepository(database.actionDao()) }
