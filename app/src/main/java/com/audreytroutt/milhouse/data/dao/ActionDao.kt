@@ -15,6 +15,9 @@ interface ActionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(action: DndAction): Long
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(actions: List<DndAction>)
+
     @Update
     suspend fun update(action: DndAction)
 

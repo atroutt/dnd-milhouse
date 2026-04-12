@@ -8,6 +8,7 @@ class ActionRepository(private val dao: ActionDao) {
     fun getAllForCharacter(characterId: Long): Flow<List<DndAction>> = dao.getAllForCharacter(characterId)
     suspend fun getById(id: Long): DndAction? = dao.getById(id)
     suspend fun insert(action: DndAction): Long = dao.insert(action)
+    suspend fun insertAll(actions: List<DndAction>) = dao.insertAll(actions)
     suspend fun update(action: DndAction) = dao.update(action)
     suspend fun delete(action: DndAction) = dao.delete(action)
 }

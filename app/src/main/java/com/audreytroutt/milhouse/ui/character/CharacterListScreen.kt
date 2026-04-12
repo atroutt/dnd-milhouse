@@ -35,7 +35,8 @@ fun CharacterListScreen(
     viewModel: CharacterViewModel = viewModel(
         factory = CharacterViewModel.factory(
             (LocalContext.current.applicationContext as MilhouseApplication).characterRepository,
-            (LocalContext.current.applicationContext as MilhouseApplication).abilityRepository
+            (LocalContext.current.applicationContext as MilhouseApplication).abilityRepository,
+            (LocalContext.current.applicationContext as MilhouseApplication).actionRepository
         )
     )
 ) {

@@ -4,8 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.audreytroutt.milhouse.data.model.Ability
+import com.audreytroutt.milhouse.data.model.DndAction
 import com.audreytroutt.milhouse.data.model.DndCharacter
+import com.audreytroutt.milhouse.data.model.STANDARD_ACTIONS
 import com.audreytroutt.milhouse.data.repository.AbilityRepository
+import com.audreytroutt.milhouse.data.repository.ActionRepository
 import com.audreytroutt.milhouse.data.repository.CharacterRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +17,8 @@ import kotlinx.coroutines.launch
 
 class CharacterViewModel(
     private val repository: CharacterRepository,
-    private val abilityRepository: AbilityRepository
+    private val abilityRepository: AbilityRepository,
+    private val actionRepository: ActionRepository
 ) : ViewModel() {
 
     val characters: StateFlow<List<DndCharacter>> = repository.getAll()
@@ -25,7 +29,7 @@ class CharacterViewModel(
             if (character.id == 0L) {
                 val newId = repository.insert(character)
                 if (speciesTraits.isNotEmpty()) {
-                    val abilities = speciesTraits.map { traitName ->
+                    abilityRepository.insertAll(speciesTraits.map { traitName ->
                         Ability(
                             characterId = newId,
                             name = traitName,
@@ -33,9 +37,16 @@ class CharacterViewModel(
                             description = "",
                             isPassive = true
                         )
-                    }
-                    abilityRepository.insertAll(abilities)
+                    })
                 }
+                actionRepository.insertAll(STANDARD_ACTIONS.map { sa ->
+                    DndAction(
+                        characterId = newId,
+                        name = sa.name,
+                        actionType = sa.type,
+                        description = sa.description
+                    )
+                })
             } else {
                 repository.update(character)
             }
@@ -49,12 +60,13 @@ class CharacterViewModel(
     companion object {
         fun factory(
             repository: CharacterRepository,
-            abilityRepository: AbilityRepository
+            abilityRepository: AbilityRepository,
+            actionRepository: ActionRepository
         ): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                    CharacterViewModel(repository, abilityRepository) as T
+                    CharacterViewModel(repository, abilityRepository, actionRepository) as T
             }
     }
 }
