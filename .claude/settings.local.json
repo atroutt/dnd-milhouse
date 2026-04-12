@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sed -i '' '/alias\\(libs.plugins.hilt.android\\)/d' /Users/auditty/Developer/MilhouseApp/app/build.gradle.kts)",
+      "Bash(sed -i '' '/^hilt-android = { id = /d' /Users/auditty/Developer/MilhouseApp/gradle/libs.versions.toml)",
+      "WebSearch",
+      "WebFetch(domain:mvnrepository.com)",
+      "WebFetch(domain:central.sonatype.com)"
+    ]
+  }
+}
