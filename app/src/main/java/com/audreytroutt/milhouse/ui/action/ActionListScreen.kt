@@ -24,11 +24,14 @@ import com.audreytroutt.milhouse.viewmodel.ActionViewModel
 
 @Composable
 fun ActionListScreen(
+    characterId: Long,
     contentPadding: PaddingValues,
     onNavigateToEdit: (Long?) -> Unit,
     viewModel: ActionViewModel = viewModel(
+        key = "action-$characterId",
         factory = ActionViewModel.factory(
-            (LocalContext.current.applicationContext as MilhouseApplication).actionRepository
+            (LocalContext.current.applicationContext as MilhouseApplication).actionRepository,
+            characterId
         )
     )
 ) {

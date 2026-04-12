@@ -24,11 +24,14 @@ import com.audreytroutt.milhouse.viewmodel.SpellViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SpellEditScreen(
+    characterId: Long,
     spellId: Long?,
     onNavigateBack: () -> Unit,
     viewModel: SpellViewModel = viewModel(
+        key = "spell-$characterId",
         factory = SpellViewModel.factory(
-            (LocalContext.current.applicationContext as MilhouseApplication).spellRepository
+            (LocalContext.current.applicationContext as MilhouseApplication).spellRepository,
+            characterId
         )
     )
 ) {
@@ -118,6 +121,7 @@ fun SpellEditScreen(
                             val lvl = level.toIntOrNull()?.coerceIn(0, 9) ?: 0
                             val spell = Spell(
                                 id = existingSpell?.id ?: 0L,
+                                characterId = characterId,
                                 name = name.trim(),
                                 level = lvl,
                                 school = school,

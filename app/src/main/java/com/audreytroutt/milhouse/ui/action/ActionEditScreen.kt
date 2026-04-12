@@ -23,11 +23,14 @@ import com.audreytroutt.milhouse.viewmodel.ActionViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActionEditScreen(
+    characterId: Long,
     actionId: Long?,
     onNavigateBack: () -> Unit,
     viewModel: ActionViewModel = viewModel(
+        key = "action-$characterId",
         factory = ActionViewModel.factory(
-            (LocalContext.current.applicationContext as MilhouseApplication).actionRepository
+            (LocalContext.current.applicationContext as MilhouseApplication).actionRepository,
+            characterId
         )
     )
 ) {
@@ -101,6 +104,7 @@ fun ActionEditScreen(
                         onClick = {
                             val action = DndAction(
                                 id = existingAction?.id ?: 0L,
+                                characterId = characterId,
                                 name = name.trim(),
                                 actionType = actionType,
                                 description = description.trim(),

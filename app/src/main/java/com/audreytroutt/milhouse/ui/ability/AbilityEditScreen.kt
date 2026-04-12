@@ -26,11 +26,14 @@ import com.audreytroutt.milhouse.viewmodel.AbilityViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AbilityEditScreen(
+    characterId: Long,
     abilityId: Long?,
     onNavigateBack: () -> Unit,
     viewModel: AbilityViewModel = viewModel(
+        key = "ability-$characterId",
         factory = AbilityViewModel.factory(
-            (LocalContext.current.applicationContext as MilhouseApplication).abilityRepository
+            (LocalContext.current.applicationContext as MilhouseApplication).abilityRepository,
+            characterId
         )
     )
 ) {
@@ -102,6 +105,7 @@ fun AbilityEditScreen(
                         onClick = {
                             val ability = Ability(
                                 id = existingAbility?.id ?: 0L,
+                                characterId = characterId,
                                 name = name.trim(),
                                 category = category,
                                 description = description.trim(),

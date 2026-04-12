@@ -24,11 +24,14 @@ import com.audreytroutt.milhouse.viewmodel.NoteViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteEditScreen(
+    characterId: Long,
     noteId: Long?,
     onNavigateBack: () -> Unit,
     viewModel: NoteViewModel = viewModel(
+        key = "note-$characterId",
         factory = NoteViewModel.factory(
-            (LocalContext.current.applicationContext as MilhouseApplication).noteRepository
+            (LocalContext.current.applicationContext as MilhouseApplication).noteRepository,
+            characterId
         )
     )
 ) {
@@ -93,6 +96,7 @@ fun NoteEditScreen(
                         onClick = {
                             val note = Note(
                                 id = existingNote?.id ?: 0L,
+                                characterId = characterId,
                                 title = title.trim(),
                                 content = content.trim(),
                                 tags = tags.joinToString(", ")

@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ActionDao {
-    @Query("SELECT * FROM actions ORDER BY actionType ASC, name ASC")
-    fun getAll(): Flow<List<DndAction>>
+    @Query("SELECT * FROM actions WHERE characterId = :characterId ORDER BY actionType ASC, name ASC")
+    fun getAllForCharacter(characterId: Long): Flow<List<DndAction>>
 
     @Query("SELECT * FROM actions WHERE id = :id")
     suspend fun getById(id: Long): DndAction?

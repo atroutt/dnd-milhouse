@@ -20,6 +20,8 @@ import com.audreytroutt.milhouse.ui.ability.AbilityEditScreen
 import com.audreytroutt.milhouse.ui.ability.AbilityListScreen
 import com.audreytroutt.milhouse.ui.action.ActionEditScreen
 import com.audreytroutt.milhouse.ui.action.ActionListScreen
+import com.audreytroutt.milhouse.ui.character.CharacterEditScreen
+import com.audreytroutt.milhouse.ui.character.CharacterListScreen
 import com.audreytroutt.milhouse.ui.note.NoteEditScreen
 import com.audreytroutt.milhouse.ui.note.NoteListScreen
 import com.audreytroutt.milhouse.ui.spell.SpellEditScreen
@@ -32,7 +34,7 @@ sealed class BottomTab(val route: String, val label: String, val icon: ImageVect
     object Notes : BottomTab("notes", "Notes", Icons.Default.Note)
 }
 
-val bottomTabs = listOf(
+private val bottomTabs = listOf(
     BottomTab.Spells,
     BottomTab.Abilities,
     BottomTab.Actions,
@@ -41,8 +43,52 @@ val bottomTabs = listOf(
 
 @Composable
 fun AppNavigation() {
-    val navController = rememberNavController()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val rootNavController = rememberNavController()
+
+    NavHost(navController = rootNavController, startDestination = "characters") {
+        // ── Character list ──────────────────────────────────────────────────
+        composable("characters") {
+            CharacterListScreen(
+                onSelectCharacter = { characterId ->
+                    rootNavController.navigate("character/$characterId")
+                },
+                onEditCharacter = { characterId ->
+                    if (characterId == null) rootNavController.navigate("characters/new")
+                    else rootNavController.navigate("characters/$characterId/edit")
+                }
+            )
+        }
+        composable("characters/new") {
+            CharacterEditScreen(
+                characterId = null,
+                onNavigateBack = { rootNavController.popBackStack() }
+            )
+        }
+        composable(
+            "characters/{characterId}/edit",
+            arguments = listOf(navArgument("characterId") { type = NavType.LongType })
+        ) { backStack ->
+            CharacterEditScreen(
+                characterId = backStack.arguments?.getLong("characterId"),
+                onNavigateBack = { rootNavController.popBackStack() }
+            )
+        }
+
+        // ── Character detail (tabs) ──────────────────────────────────────────
+        composable(
+            "character/{characterId}",
+            arguments = listOf(navArgument("characterId") { type = NavType.LongType })
+        ) { backStack ->
+            val characterId = backStack.arguments!!.getLong("characterId")
+            CharacterTabs(characterId = characterId)
+        }
+    }
+}
+
+@Composable
+private fun CharacterTabs(characterId: Long) {
+    val tabNavController = rememberNavController()
+    val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
     Scaffold(
@@ -54,8 +100,8 @@ fun AppNavigation() {
                         label = { Text(tab.label) },
                         selected = currentDestination?.hierarchy?.any { it.route == tab.route } == true,
                         onClick = {
-                            navController.navigate(tab.route) {
-                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            tabNavController.navigate(tab.route) {
+                                popUpTo(tabNavController.graph.findStartDestination().id) { saveState = true }
                                 launchSingleTop = true
                                 restoreState = true
                             }
@@ -66,98 +112,122 @@ fun AppNavigation() {
         }
     ) { innerPadding ->
         NavHost(
-            navController = navController,
+            navController = tabNavController,
             startDestination = BottomTab.Spells.route
         ) {
             // Spells
             composable(BottomTab.Spells.route) {
                 SpellListScreen(
+                    characterId = characterId,
                     contentPadding = innerPadding,
                     onNavigateToEdit = { id ->
-                        if (id == null) navController.navigate("spell/new")
-                        else navController.navigate("spell/$id")
+                        if (id == null) tabNavController.navigate("spell/new")
+                        else tabNavController.navigate("spell/$id")
                     }
                 )
             }
             composable("spell/new") {
-                SpellEditScreen(spellId = null, onNavigateBack = { navController.popBackStack() })
+                SpellEditScreen(
+                    characterId = characterId,
+                    spellId = null,
+                    onNavigateBack = { tabNavController.popBackStack() }
+                )
             }
             composable(
                 "spell/{id}",
                 arguments = listOf(navArgument("id") { type = NavType.LongType })
             ) { backStackEntry ->
                 SpellEditScreen(
+                    characterId = characterId,
                     spellId = backStackEntry.arguments?.getLong("id"),
-                    onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { tabNavController.popBackStack() }
                 )
             }
 
             // Abilities
             composable(BottomTab.Abilities.route) {
                 AbilityListScreen(
+                    characterId = characterId,
                     contentPadding = innerPadding,
                     onNavigateToEdit = { id ->
-                        if (id == null) navController.navigate("ability/new")
-                        else navController.navigate("ability/$id")
+                        if (id == null) tabNavController.navigate("ability/new")
+                        else tabNavController.navigate("ability/$id")
                     }
                 )
             }
             composable("ability/new") {
-                AbilityEditScreen(abilityId = null, onNavigateBack = { navController.popBackStack() })
+                AbilityEditScreen(
+                    characterId = characterId,
+                    abilityId = null,
+                    onNavigateBack = { tabNavController.popBackStack() }
+                )
             }
             composable(
                 "ability/{id}",
                 arguments = listOf(navArgument("id") { type = NavType.LongType })
             ) { backStackEntry ->
                 AbilityEditScreen(
+                    characterId = characterId,
                     abilityId = backStackEntry.arguments?.getLong("id"),
-                    onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { tabNavController.popBackStack() }
                 )
             }
 
             // Actions
             composable(BottomTab.Actions.route) {
                 ActionListScreen(
+                    characterId = characterId,
                     contentPadding = innerPadding,
                     onNavigateToEdit = { id ->
-                        if (id == null) navController.navigate("action/new")
-                        else navController.navigate("action/$id")
+                        if (id == null) tabNavController.navigate("action/new")
+                        else tabNavController.navigate("action/$id")
                     }
                 )
             }
             composable("action/new") {
-                ActionEditScreen(actionId = null, onNavigateBack = { navController.popBackStack() })
+                ActionEditScreen(
+                    characterId = characterId,
+                    actionId = null,
+                    onNavigateBack = { tabNavController.popBackStack() }
+                )
             }
             composable(
                 "action/{id}",
                 arguments = listOf(navArgument("id") { type = NavType.LongType })
             ) { backStackEntry ->
                 ActionEditScreen(
+                    characterId = characterId,
                     actionId = backStackEntry.arguments?.getLong("id"),
-                    onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { tabNavController.popBackStack() }
                 )
             }
 
             // Notes
             composable(BottomTab.Notes.route) {
                 NoteListScreen(
+                    characterId = characterId,
                     contentPadding = innerPadding,
                     onNavigateToEdit = { id ->
-                        if (id == null) navController.navigate("note/new")
-                        else navController.navigate("note/$id")
+                        if (id == null) tabNavController.navigate("note/new")
+                        else tabNavController.navigate("note/$id")
                     }
                 )
             }
             composable("note/new") {
-                NoteEditScreen(noteId = null, onNavigateBack = { navController.popBackStack() })
+                NoteEditScreen(
+                    characterId = characterId,
+                    noteId = null,
+                    onNavigateBack = { tabNavController.popBackStack() }
+                )
             }
             composable(
                 "note/{id}",
                 arguments = listOf(navArgument("id") { type = NavType.LongType })
             ) { backStackEntry ->
                 NoteEditScreen(
+                    characterId = characterId,
                     noteId = backStackEntry.arguments?.getLong("id"),
-                    onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { tabNavController.popBackStack() }
                 )
             }
         }

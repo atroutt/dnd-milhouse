@@ -27,11 +27,14 @@ import com.audreytroutt.milhouse.viewmodel.SpellViewModel
 
 @Composable
 fun SpellListScreen(
+    characterId: Long,
     contentPadding: PaddingValues,
     onNavigateToEdit: (Long?) -> Unit,
     viewModel: SpellViewModel = viewModel(
+        key = "spell-$characterId",
         factory = SpellViewModel.factory(
-            (LocalContext.current.applicationContext as MilhouseApplication).spellRepository
+            (LocalContext.current.applicationContext as MilhouseApplication).spellRepository,
+            characterId
         )
     )
 ) {

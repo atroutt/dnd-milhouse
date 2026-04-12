@@ -24,11 +24,14 @@ import java.util.*
 
 @Composable
 fun NoteListScreen(
+    characterId: Long,
     contentPadding: PaddingValues,
     onNavigateToEdit: (Long?) -> Unit,
     viewModel: NoteViewModel = viewModel(
+        key = "note-$characterId",
         factory = NoteViewModel.factory(
-            (LocalContext.current.applicationContext as MilhouseApplication).noteRepository
+            (LocalContext.current.applicationContext as MilhouseApplication).noteRepository,
+            characterId
         )
     )
 ) {

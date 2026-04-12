@@ -12,9 +12,9 @@ import kotlinx.coroutines.launch
 
 data class SpellFilter(
     val query: String = "",
-    val levelFilter: Int? = null, // null = all, 0 = cantrips
+    val levelFilter: Int? = null,
     val preparedOnly: Boolean = false,
-    val classFilter: String? = null  // null = all classes
+    val classFilter: String? = null
 )
 
 sealed class ImportState {
@@ -25,14 +25,17 @@ sealed class ImportState {
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class SpellViewModel(private val repository: SpellRepository) : ViewModel() {
+class SpellViewModel(
+    private val repository: SpellRepository,
+    private val characterId: Long
+) : ViewModel() {
 
     private val _filter = MutableStateFlow(SpellFilter())
     val filter: StateFlow<SpellFilter> = _filter.asStateFlow()
 
     val spells: StateFlow<List<Spell>> = _filter
         .flatMapLatest { f ->
-            repository.getAll().map { list ->
+            repository.getAllForCharacter(characterId).map { list ->
                 list.filter { spell ->
                     val matchesQuery = f.query.isEmpty() ||
                         spell.name.contains(f.query, ignoreCase = true) ||
@@ -48,7 +51,7 @@ class SpellViewModel(private val repository: SpellRepository) : ViewModel() {
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val allClasses: StateFlow<List<String>> = repository.getAll()
+    val allClasses: StateFlow<List<String>> = repository.getAllForCharacter(characterId)
         .map { spells ->
             spells.flatMap { spell ->
                 spell.classes.split(",").map { it.trim() }.filter { it.isNotEmpty() }
@@ -91,7 +94,7 @@ class SpellViewModel(private val repository: SpellRepository) : ViewModel() {
         viewModelScope.launch {
             _importState.value = ImportState.Loading(0, 0)
             try {
-                val spells = SpellImportService().fetchAllSpells { fetched, total ->
+                val spells = SpellImportService().fetchAllSpells(characterId) { fetched, total ->
                     _importState.value = ImportState.Loading(fetched, total)
                 }
                 repository.insertAll(spells)
@@ -105,11 +108,11 @@ class SpellViewModel(private val repository: SpellRepository) : ViewModel() {
     fun dismissImportError() { _importState.value = ImportState.Idle }
 
     companion object {
-        fun factory(repository: SpellRepository): ViewModelProvider.Factory =
+        fun factory(repository: SpellRepository, characterId: Long): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                    SpellViewModel(repository) as T
+                    SpellViewModel(repository, characterId) as T
             }
     }
 }

@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NoteDao {
-    @Query("SELECT * FROM notes ORDER BY updatedAt DESC")
-    fun getAll(): Flow<List<Note>>
+    @Query("SELECT * FROM notes WHERE characterId = :characterId ORDER BY updatedAt DESC")
+    fun getAllForCharacter(characterId: Long): Flow<List<Note>>
 
     @Query("SELECT * FROM notes WHERE id = :id")
     suspend fun getById(id: Long): Note?

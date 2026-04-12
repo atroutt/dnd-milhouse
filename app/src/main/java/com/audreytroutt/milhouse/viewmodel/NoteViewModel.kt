@@ -10,7 +10,10 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
+class NoteViewModel(
+    private val repository: NoteRepository,
+    private val characterId: Long
+) : ViewModel() {
 
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query.asStateFlow()
@@ -20,7 +23,7 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
 
     val notes: StateFlow<List<Note>> = combine(_query, _tagFilter) { q, tag -> q to tag }
         .flatMapLatest { (q, tag) ->
-            repository.getAll().map { list ->
+            repository.getAllForCharacter(characterId).map { list ->
                 list.filter { note ->
                     val matchesQuery = q.isEmpty() ||
                         note.title.contains(q, ignoreCase = true) ||
@@ -33,7 +36,7 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val allTags: StateFlow<List<String>> = repository.getAll()
+    val allTags: StateFlow<List<String>> = repository.getAllForCharacter(characterId)
         .map { notes -> notes.flatMap { it.tagList() }.distinct().sorted() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -65,11 +68,11 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
     }
 
     companion object {
-        fun factory(repository: NoteRepository): ViewModelProvider.Factory =
+        fun factory(repository: NoteRepository, characterId: Long): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                    NoteViewModel(repository) as T
+                    NoteViewModel(repository, characterId) as T
             }
     }
 }

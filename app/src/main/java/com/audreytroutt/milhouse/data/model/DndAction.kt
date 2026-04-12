@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "actions")
 data class DndAction(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val characterId: Long,
     val name: String,
     val actionType: String,
     val description: String,

@@ -10,7 +10,10 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class ActionViewModel(private val repository: ActionRepository) : ViewModel() {
+class ActionViewModel(
+    private val repository: ActionRepository,
+    private val characterId: Long
+) : ViewModel() {
 
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query.asStateFlow()
@@ -20,7 +23,7 @@ class ActionViewModel(private val repository: ActionRepository) : ViewModel() {
 
     val actions: StateFlow<List<DndAction>> = combine(_query, _typeFilter) { q, type -> q to type }
         .flatMapLatest { (q, type) ->
-            repository.getAll().map { list ->
+            repository.getAllForCharacter(characterId).map { list ->
                 list.filter { action ->
                     val matchesQuery = q.isEmpty() ||
                         action.name.contains(q, ignoreCase = true) ||
@@ -55,11 +58,11 @@ class ActionViewModel(private val repository: ActionRepository) : ViewModel() {
     }
 
     companion object {
-        fun factory(repository: ActionRepository): ViewModelProvider.Factory =
+        fun factory(repository: ActionRepository, characterId: Long): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                    ActionViewModel(repository) as T
+                    ActionViewModel(repository, characterId) as T
             }
     }
 }

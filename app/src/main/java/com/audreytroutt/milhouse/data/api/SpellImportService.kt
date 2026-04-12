@@ -15,31 +15,33 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class SpellImportService {
 
-    suspend fun fetchAllSpells(onProgress: (fetched: Int, total: Int) -> Unit): List<Spell> =
-        withContext(Dispatchers.IO) {
-            val indexJson = JSONObject(get("https://www.dnd5eapi.co/api/spells"))
-            val results = indexJson.getJSONArray("results")
-            val total = results.length()
-            val indices = (0 until total).map { results.getJSONObject(it).getString("index") }
+    suspend fun fetchAllSpells(
+        characterId: Long,
+        onProgress: (fetched: Int, total: Int) -> Unit
+    ): List<Spell> = withContext(Dispatchers.IO) {
+        val indexJson = JSONObject(get("https://www.dnd5eapi.co/api/spells"))
+        val results = indexJson.getJSONArray("results")
+        val total = results.length()
+        val indices = (0 until total).map { results.getJSONObject(it).getString("index") }
 
-            val fetched = AtomicInteger(0)
-            val semaphore = Semaphore(10)
+        val fetched = AtomicInteger(0)
+        val semaphore = Semaphore(10)
 
-            coroutineScope {
-                indices.map { index ->
-                    async {
-                        semaphore.withPermit {
-                            val spell = fetchSpell(index)
-                            onProgress(fetched.incrementAndGet(), total)
-                            spell
-                        }
+        coroutineScope {
+            indices.map { index ->
+                async {
+                    semaphore.withPermit {
+                        val spell = fetchSpell(index, characterId)
+                        onProgress(fetched.incrementAndGet(), total)
+                        spell
                     }
-                }.awaitAll().filterNotNull()
-            }
+                }
+            }.awaitAll().filterNotNull()
         }
+    }
 
-    private fun fetchSpell(index: String): Spell? = try {
-        parseSpell(JSONObject(get("https://www.dnd5eapi.co/api/spells/$index")))
+    private fun fetchSpell(index: String, characterId: Long): Spell? = try {
+        parseSpell(JSONObject(get("https://www.dnd5eapi.co/api/spells/$index")), characterId)
     } catch (_: Exception) {
         null
     }
@@ -57,7 +59,7 @@ class SpellImportService {
         }
     }
 
-    private fun parseSpell(json: JSONObject): Spell {
+    private fun parseSpell(json: JSONObject, characterId: Long): Spell {
         fun jsonArrayToString(key: String) =
             json.optJSONArray(key)?.let { arr ->
                 (0 until arr.length()).joinToString("\n\n") { arr.getString(it) }
@@ -72,6 +74,7 @@ class SpellImportService {
         } ?: ""
 
         return Spell(
+            characterId = characterId,
             name = json.getString("name"),
             level = json.getInt("level"),
             school = json.optJSONObject("school")?.optString("name", "") ?: "",

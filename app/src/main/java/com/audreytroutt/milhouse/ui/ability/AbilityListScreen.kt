@@ -23,11 +23,14 @@ import com.audreytroutt.milhouse.viewmodel.AbilityViewModel
 
 @Composable
 fun AbilityListScreen(
+    characterId: Long,
     contentPadding: PaddingValues,
     onNavigateToEdit: (Long?) -> Unit,
     viewModel: AbilityViewModel = viewModel(
+        key = "ability-$characterId",
         factory = AbilityViewModel.factory(
-            (LocalContext.current.applicationContext as MilhouseApplication).abilityRepository
+            (LocalContext.current.applicationContext as MilhouseApplication).abilityRepository,
+            characterId
         )
     )
 ) {

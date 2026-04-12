@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SpellDao {
-    @Query("SELECT * FROM spells ORDER BY level ASC, name ASC")
-    fun getAll(): Flow<List<Spell>>
+    @Query("SELECT * FROM spells WHERE characterId = :characterId ORDER BY level ASC, name ASC")
+    fun getAllForCharacter(characterId: Long): Flow<List<Spell>>
 
     @Query("SELECT * FROM spells WHERE id = :id")
     suspend fun getById(id: Long): Spell?
@@ -17,9 +17,6 @@ interface SpellDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(spells: List<Spell>)
-
-    @Query("SELECT COUNT(*) FROM spells")
-    suspend fun count(): Int
 
     @Update
     suspend fun update(spell: Spell)

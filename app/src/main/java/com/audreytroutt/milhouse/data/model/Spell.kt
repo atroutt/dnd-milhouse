@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "spells")
 data class Spell(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val characterId: Long,
     val name: String,
     val level: Int, // 0 = cantrip
     val school: String,

@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "abilities")
 data class Ability(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val characterId: Long,
     val name: String,
     val category: String,
     val description: String,
