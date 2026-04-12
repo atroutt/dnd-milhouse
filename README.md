@@ -1,5 +1,7 @@
 # Milhouse
 
+<img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" alt="Milhouse app icon" width="96">
+
 A D&D 5e companion app for Android. Milhouse helps you manage the details for one or more characters — spells, abilities, actions, and notes — all stored locally on your device.
 
 ## Features
@@ -32,7 +34,7 @@ A D&D 5e companion app for Android. Milhouse helps you manage the details for on
 
 1. Clone the repo:
    ```
-   git clone https://github.com/<your-username>/MilhouseApp.git
+   git clone https://github.com/atroutt/MilhouseApp.git
    ```
 2. Open the project in Android Studio (`File > Open` → select the `MilhouseApp` folder)
 3. Let Gradle sync complete
