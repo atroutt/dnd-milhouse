@@ -4,10 +4,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Note
+import androidx.compose.material.icons.filled.PeopleAlt
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -16,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.audreytroutt.milhouse.MilhouseApplication
 import com.audreytroutt.milhouse.ui.ability.AbilityEditScreen
 import com.audreytroutt.milhouse.ui.ability.AbilityListScreen
 import com.audreytroutt.milhouse.ui.action.ActionEditScreen
@@ -80,18 +83,43 @@ fun AppNavigation() {
             arguments = listOf(navArgument("characterId") { type = NavType.LongType })
         ) { backStack ->
             val characterId = backStack.arguments!!.getLong("characterId")
-            CharacterTabs(characterId = characterId)
+            CharacterTabs(
+                characterId = characterId,
+                onNavigateToCharacters = { rootNavController.popBackStack() }
+            )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CharacterTabs(characterId: Long) {
+private fun CharacterTabs(characterId: Long, onNavigateToCharacters: () -> Unit) {
     val tabNavController = rememberNavController()
     val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
+    val currentTab = bottomTabs.find { tab ->
+        currentDestination?.hierarchy?.any { it.route == tab.route } == true
+    } ?: BottomTab.Spells
+
+    val app = LocalContext.current.applicationContext as MilhouseApplication
+    var characterName by remember { mutableStateOf("") }
+    LaunchedEffect(characterId) {
+        characterName = app.characterRepository.getById(characterId)?.name ?: ""
+    }
+
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("$characterName — ${currentTab.label}") },
+                actions = {
+                    TextButton(onClick = onNavigateToCharacters) {
+                        Icon(Icons.Default.PeopleAlt, contentDescription = null)
+                        Text("Switch")
+                    }
+                }
+            )
+        },
         bottomBar = {
             NavigationBar {
                 bottomTabs.forEach { tab ->
