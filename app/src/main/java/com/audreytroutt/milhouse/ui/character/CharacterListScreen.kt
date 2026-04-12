@@ -34,7 +34,8 @@ fun CharacterListScreen(
     onEditCharacter: (Long?) -> Unit,
     viewModel: CharacterViewModel = viewModel(
         factory = CharacterViewModel.factory(
-            (LocalContext.current.applicationContext as MilhouseApplication).characterRepository
+            (LocalContext.current.applicationContext as MilhouseApplication).characterRepository,
+            (LocalContext.current.applicationContext as MilhouseApplication).abilityRepository
         )
     )
 ) {

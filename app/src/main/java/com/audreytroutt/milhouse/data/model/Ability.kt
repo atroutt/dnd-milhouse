@@ -18,7 +18,7 @@ data class Ability(
 )
 
 val ABILITY_CATEGORIES = listOf(
-    "Class Feature", "Subclass Feature", "Racial Trait", "Feat", "Background Feature", "Other"
+    "Class Feature", "Subclass Feature", "Species Trait", "Feat", "Background Feature", "Other"
 )
 
 val RECHARGE_OPTIONS = listOf("None", "Short Rest", "Long Rest", "Dawn")

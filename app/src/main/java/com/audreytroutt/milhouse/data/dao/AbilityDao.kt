@@ -15,6 +15,9 @@ interface AbilityDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(ability: Ability): Long
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(abilities: List<Ability>)
+
     @Update
     suspend fun update(ability: Ability)
 

@@ -27,6 +27,8 @@ import com.audreytroutt.milhouse.data.model.CHARACTER_COLORS
 import com.audreytroutt.milhouse.data.model.CHARACTER_ICONS
 import com.audreytroutt.milhouse.data.model.DND_CLASSES
 import com.audreytroutt.milhouse.data.model.DndCharacter
+import com.audreytroutt.milhouse.data.model.SPECIES_NAMES
+import com.audreytroutt.milhouse.data.model.speciesTraits
 import com.audreytroutt.milhouse.ui.components.DropdownField
 import com.audreytroutt.milhouse.ui.components.SectionLabel
 import com.audreytroutt.milhouse.viewmodel.CharacterViewModel
@@ -38,7 +40,8 @@ fun CharacterEditScreen(
     onNavigateBack: () -> Unit,
     viewModel: CharacterViewModel = viewModel(
         factory = CharacterViewModel.factory(
-            (LocalContext.current.applicationContext as MilhouseApplication).characterRepository
+            (LocalContext.current.applicationContext as MilhouseApplication).characterRepository,
+            (LocalContext.current.applicationContext as MilhouseApplication).abilityRepository
         )
     )
 ) {
@@ -49,9 +52,15 @@ fun CharacterEditScreen(
     var name by remember { mutableStateOf("") }
     var characterClass by remember { mutableStateOf("") }
     var species by remember { mutableStateOf("") }
+    var speciesExpanded by remember { mutableStateOf(false) }
     var colorIndex by remember { mutableStateOf(0) }
     var iconIndex by remember { mutableStateOf(0) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+
+    val speciesSuggestions = remember(species) {
+        if (species.isBlank()) emptyList()
+        else SPECIES_NAMES.filter { it.contains(species, ignoreCase = true) }
+    }
 
     LaunchedEffect(characterId) {
         if (characterId != null) {
@@ -110,7 +119,8 @@ fun CharacterEditScreen(
                                 colorIndex = colorIndex,
                                 iconIndex = iconIndex
                             )
-                            viewModel.saveCharacter(character)
+                            val traits = if (existingCharacter == null) speciesTraits(species.trim()) else emptyList()
+                            viewModel.saveCharacter(character, traits)
                             onNavigateBack()
                         },
                         enabled = name.isNotBlank()
@@ -156,14 +166,36 @@ fun CharacterEditScreen(
                 onValueChange = { characterClass = it }
             )
 
-            OutlinedTextField(
-                value = species,
-                onValueChange = { species = it },
-                label = { Text("Species") },
-                placeholder = { Text("e.g. Human, Elf, Dwarf…") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+            ExposedDropdownMenuBox(
+                expanded = speciesExpanded && speciesSuggestions.isNotEmpty(),
+                onExpandedChange = { speciesExpanded = it }
+            ) {
+                OutlinedTextField(
+                    value = species,
+                    onValueChange = {
+                        species = it
+                        speciesExpanded = true
+                    },
+                    label = { Text("Species") },
+                    placeholder = { Text("e.g. Human, Elf, Dwarf…") },
+                    modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryEditable),
+                    singleLine = true
+                )
+                ExposedDropdownMenu(
+                    expanded = speciesExpanded && speciesSuggestions.isNotEmpty(),
+                    onDismissRequest = { speciesExpanded = false }
+                ) {
+                    speciesSuggestions.forEach { suggestion ->
+                        DropdownMenuItem(
+                            text = { Text(suggestion) },
+                            onClick = {
+                                species = suggestion
+                                speciesExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
 
             SectionLabel("Color")
             LazyRow(

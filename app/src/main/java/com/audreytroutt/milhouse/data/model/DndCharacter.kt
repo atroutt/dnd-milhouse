@@ -27,9 +27,10 @@ data class DndCharacter(
 )
 
 val DND_CLASSES = listOf(
-    "Artificer", "Barbarian", "Bard", "Cleric", "Druid",
-    "Fighter", "Monk", "Paladin", "Ranger", "Rogue",
-    "Sorcerer", "Warlock", "Wizard"
+    "Artificer", "Barbarian", "Bard", "Blood Hunter", "Captain",
+    "Cleric", "Druid", "Fighter", "Gunslinger", "Illrigger",
+    "Monk", "Monster Hunter", "Paladin", "Pugilist", "Ranger",
+    "Rogue", "Sorcerer", "Warlock", "Wizard"
 )
 
 val CHARACTER_COLORS = listOf(
