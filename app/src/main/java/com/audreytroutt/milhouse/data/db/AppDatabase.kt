@@ -45,10 +45,15 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         database.execSQL(
             "INSERT INTO `characters` (`name`, `characterClass`, `species`, `colorIndex`, `iconIndex`) VALUES ('My Character', '', '', 0, 0)"
         )
-        // Add characterId to existing tables, pointing at the new default character (id = 1)
-        database.execSQL("ALTER TABLE `spells` ADD COLUMN `characterId` INTEGER NOT NULL DEFAULT 1")
-        database.execSQL("ALTER TABLE `abilities` ADD COLUMN `characterId` INTEGER NOT NULL DEFAULT 1")
-        database.execSQL("ALTER TABLE `actions` ADD COLUMN `characterId` INTEGER NOT NULL DEFAULT 1")
-        database.execSQL("ALTER TABLE `notes` ADD COLUMN `characterId` INTEGER NOT NULL DEFAULT 1")
+        // Add characterId to existing tables with default 0 (matches @ColumnInfo annotation)
+        database.execSQL("ALTER TABLE `spells` ADD COLUMN `characterId` INTEGER NOT NULL DEFAULT 0")
+        database.execSQL("ALTER TABLE `abilities` ADD COLUMN `characterId` INTEGER NOT NULL DEFAULT 0")
+        database.execSQL("ALTER TABLE `actions` ADD COLUMN `characterId` INTEGER NOT NULL DEFAULT 0")
+        database.execSQL("ALTER TABLE `notes` ADD COLUMN `characterId` INTEGER NOT NULL DEFAULT 0")
+        // Point all existing rows at the default character (id = 1)
+        database.execSQL("UPDATE `spells` SET `characterId` = 1")
+        database.execSQL("UPDATE `abilities` SET `characterId` = 1")
+        database.execSQL("UPDATE `actions` SET `characterId` = 1")
+        database.execSQL("UPDATE `notes` SET `characterId` = 1")
     }
 }

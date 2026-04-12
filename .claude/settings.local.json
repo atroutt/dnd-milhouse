@@ -6,7 +6,8 @@
       "WebSearch",
       "WebFetch(domain:mvnrepository.com)",
       "WebFetch(domain:central.sonatype.com)",
-      "WebFetch(domain:magicalscrolls.com)"
+      "WebFetch(domain:magicalscrolls.com)",
+      "Bash(find /Users/auditty/Developer/MilhouseApp/app/src/main/res/mipmap-* -type f)"
     ]
   }
 }

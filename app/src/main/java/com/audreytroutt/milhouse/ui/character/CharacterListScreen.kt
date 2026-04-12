@@ -15,8 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.audreytroutt.milhouse.MilhouseApplication
@@ -36,11 +39,30 @@ fun CharacterListScreen(
     )
 ) {
     val characters by viewModel.characters.collectAsState()
+    val context = LocalContext.current
+    val appIconPainter = remember {
+        BitmapPainter(
+            context.packageManager.getApplicationIcon(context.packageName).toBitmap().asImageBitmap()
+        )
+    }
 
     Scaffold(
         topBar = {
             @OptIn(ExperimentalMaterial3Api::class)
-            TopAppBar(title = { Text("Characters") })
+            TopAppBar(
+                title = { Text("Characters") },
+                actions = {
+                    Icon(
+                        painter = appIconPainter,
+                        contentDescription = "Milhouse",
+                        tint = Color.Unspecified,
+                        modifier = Modifier
+                            .padding(end = 12.dp)
+                            .size(36.dp)
+                            .clip(MaterialTheme.shapes.small)
+                    )
+                }
+            )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { onEditCharacter(null) }) {

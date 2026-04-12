@@ -1,12 +1,13 @@
 package com.audreytroutt.milhouse.data.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "actions")
 data class DndAction(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val characterId: Long,
+    @ColumnInfo(defaultValue = "0") val characterId: Long = 0,
     val name: String,
     val actionType: String,
     val description: String,
