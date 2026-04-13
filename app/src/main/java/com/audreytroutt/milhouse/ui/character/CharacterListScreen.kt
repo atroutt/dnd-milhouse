@@ -1,11 +1,15 @@
 package com.audreytroutt.milhouse.ui.character
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
@@ -17,10 +21,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.core.graphics.drawable.toBitmap
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.toBitmap
+import com.audreytroutt.milhouse.R
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.audreytroutt.milhouse.MilhouseApplication
 import com.audreytroutt.milhouse.data.model.DndCharacter
@@ -48,6 +57,9 @@ fun CharacterListScreen(
         )
     }
 
+    var iconTapCount by remember { mutableIntStateOf(0) }
+    var showEasterEgg by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             @OptIn(ExperimentalMaterial3Api::class)
@@ -62,6 +74,13 @@ fun CharacterListScreen(
                             .padding(end = 12.dp)
                             .size(36.dp)
                             .clip(MaterialTheme.shapes.small)
+                            .clickable {
+                                iconTapCount++
+                                if (iconTapCount >= 5) {
+                                    showEasterEgg = true
+                                    iconTapCount = 0
+                                }
+                            }
                     )
                 }
             )
@@ -102,6 +121,48 @@ fun CharacterListScreen(
                         onEdit = { onEditCharacter(character.id) }
                     )
                 }
+            }
+        }
+    }
+
+    // Easter egg — tap the app icon 5 times
+    AnimatedVisibility(
+        visible = showEasterEgg,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.85f))
+                .clickable { showEasterEgg = false },
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                androidx.compose.foundation.Image(
+                    painter = painterResource(R.drawable.milhouse_photo),
+                    contentDescription = "The real Milhouse",
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .clip(RoundedCornerShape(16.dp)),
+                    contentScale = ContentScale.Fit
+                )
+                Text(
+                    "The real Milhouse 🐱",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    "Tap anywhere to dismiss",
+                    color = Color.White.copy(alpha = 0.6f),
+                    fontSize = 13.sp,
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }
