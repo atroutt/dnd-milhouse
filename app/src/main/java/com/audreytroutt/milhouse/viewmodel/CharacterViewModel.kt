@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.audreytroutt.milhouse.data.model.Ability
 import com.audreytroutt.milhouse.data.model.DndAction
 import com.audreytroutt.milhouse.data.model.DndCharacter
+import com.audreytroutt.milhouse.data.model.SpeciesTrait
 import com.audreytroutt.milhouse.data.model.STANDARD_ACTIONS
 import com.audreytroutt.milhouse.data.model.classFeatures
 import com.audreytroutt.milhouse.data.repository.AbilityRepository
@@ -25,7 +26,7 @@ class CharacterViewModel(
     val characters: StateFlow<List<DndCharacter>> = repository.getAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun saveCharacter(character: DndCharacter, speciesTraits: List<String> = emptyList()) {
+    fun saveCharacter(character: DndCharacter, speciesTraits: List<SpeciesTrait> = emptyList()) {
         viewModelScope.launch {
             if (character.id == 0L) {
                 val newId = repository.insert(character)
@@ -38,12 +39,12 @@ class CharacterViewModel(
                             description = cf.description
                         ))
                     }
-                    speciesTraits.forEach { traitName ->
+                    speciesTraits.forEach { trait ->
                         add(Ability(
                             characterId = newId,
-                            name = traitName,
+                            name = trait.name,
                             category = "Species Trait",
-                            description = "",
+                            description = trait.description,
                             isPassive = true
                         ))
                     }

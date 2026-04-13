@@ -28,6 +28,7 @@ import com.audreytroutt.milhouse.data.model.CHARACTER_ICONS
 import com.audreytroutt.milhouse.data.model.DND_CLASSES
 import com.audreytroutt.milhouse.data.model.DndCharacter
 import com.audreytroutt.milhouse.data.model.SPECIES_NAMES
+import com.audreytroutt.milhouse.data.model.SpeciesTrait
 import com.audreytroutt.milhouse.data.model.speciesTraits
 import com.audreytroutt.milhouse.ui.components.DropdownField
 import com.audreytroutt.milhouse.ui.components.SectionLabel
@@ -120,7 +121,7 @@ fun CharacterEditScreen(
                                 colorIndex = colorIndex,
                                 iconIndex = iconIndex
                             )
-                            val traits = if (existingCharacter == null) speciesTraits(species.trim()) else emptyList()
+                            val traits: List<SpeciesTrait> = if (existingCharacter == null) speciesTraits(species.trim()) else emptyList()
                             viewModel.saveCharacter(character, traits)
                             onNavigateBack()
                         },
