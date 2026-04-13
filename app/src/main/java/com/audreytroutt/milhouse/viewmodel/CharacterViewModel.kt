@@ -7,6 +7,7 @@ import com.audreytroutt.milhouse.data.model.Ability
 import com.audreytroutt.milhouse.data.model.DndAction
 import com.audreytroutt.milhouse.data.model.DndCharacter
 import com.audreytroutt.milhouse.data.model.STANDARD_ACTIONS
+import com.audreytroutt.milhouse.data.model.classFeatures
 import com.audreytroutt.milhouse.data.repository.AbilityRepository
 import com.audreytroutt.milhouse.data.repository.ActionRepository
 import com.audreytroutt.milhouse.data.repository.CharacterRepository
@@ -28,17 +29,27 @@ class CharacterViewModel(
         viewModelScope.launch {
             if (character.id == 0L) {
                 val newId = repository.insert(character)
-                if (speciesTraits.isNotEmpty()) {
-                    abilityRepository.insertAll(speciesTraits.map { traitName ->
-                        Ability(
+                val featureAbilities = buildList {
+                    classFeatures(character.characterClass).forEach { cf ->
+                        add(Ability(
+                            characterId = newId,
+                            name = cf.name,
+                            category = "Class Feature",
+                            description = cf.description
+                        ))
+                    }
+                    speciesTraits.forEach { traitName ->
+                        add(Ability(
                             characterId = newId,
                             name = traitName,
                             category = "Species Trait",
                             description = "",
                             isPassive = true
-                        )
-                    })
+                        ))
+                    }
                 }
+                if (featureAbilities.isNotEmpty()) abilityRepository.insertAll(featureAbilities)
+
                 actionRepository.insertAll(STANDARD_ACTIONS.map { sa ->
                     DndAction(
                         characterId = newId,
