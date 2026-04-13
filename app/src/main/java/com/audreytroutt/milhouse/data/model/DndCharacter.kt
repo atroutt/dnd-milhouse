@@ -1,16 +1,16 @@
 package com.audreytroutt.milhouse.data.model
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoStories
-import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FlashOn
-import androidx.compose.material.icons.filled.LocalFireDepartment
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.Pets
-import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.AcUnit
+import androidx.compose.material.icons.filled.Anchor
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Casino
+import androidx.compose.material.icons.filled.Cyclone
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.Science
+import androidx.compose.material.icons.filled.SelfImprovement
+import androidx.compose.material.icons.filled.Spa
+import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.room.Entity
@@ -47,16 +47,16 @@ val CHARACTER_COLORS = listOf(
 )
 
 val CHARACTER_ICONS: List<ImageVector> = listOf(
-    Icons.Default.Shield,               // Fighter / Paladin
-    Icons.Default.AutoStories,          // Wizard / Scholar
-    Icons.Default.Bolt,                 // Sorcerer
-    Icons.Default.Star,                 // Paladin / Holy
-    Icons.Default.Favorite,             // Cleric / Life
-    Icons.Default.LocalFireDepartment,  // Barbarian
-    Icons.Default.MusicNote,            // Bard
-    Icons.Default.Visibility,           // Warlock / Rogue
-    Icons.Default.Pets,                 // Ranger / Druid
-    Icons.Default.FlashOn,              // Monk
+    Icons.Default.Casino,           // dice — classic D&D energy
+    Icons.Default.AutoAwesome,      // sparkles — Wizard / Sorcerer
+    Icons.Default.Whatshot,         // fire — Barbarian / Pyromancer
+    Icons.Default.Spa,              // lotus — Druid / Ranger
+    Icons.Default.SelfImprovement,  // meditation — Monk
+    Icons.Default.Psychology,       // eldritch brain — Warlock / Psion
+    Icons.Default.Science,          // alchemy flask — Artificer
+    Icons.Default.AcUnit,           // snowflake — ice magic / weird
+    Icons.Default.Cyclone,          // storm vortex — Tempest / Chaos
+    Icons.Default.Anchor,           // anchor — chaotic neutral energy
 )
 
 fun DndCharacter.accentColor(): Color =

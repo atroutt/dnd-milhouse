@@ -7,6 +7,7 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/deploymentTargetSelector.xml
 .DS_Store
 /build
 /captures
@@ -38,3 +39,4 @@ out/
 build/
 
 # Local configuration file (sdk path, etc)
+.claude/settings.local.json

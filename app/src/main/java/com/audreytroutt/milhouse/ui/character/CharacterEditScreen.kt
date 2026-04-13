@@ -55,8 +55,8 @@ fun CharacterEditScreen(
     var characterClass by remember { mutableStateOf("") }
     var species by remember { mutableStateOf("") }
     var speciesExpanded by remember { mutableStateOf(false) }
-    var colorIndex by remember { mutableStateOf(0) }
-    var iconIndex by remember { mutableStateOf(0) }
+    var colorIndex by remember { mutableStateOf(if (characterId == null) CHARACTER_COLORS.indices.random() else 0) }
+    var iconIndex by remember { mutableStateOf(if (characterId == null) CHARACTER_ICONS.indices.random() else 0) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     val speciesSuggestions = remember(species) {
