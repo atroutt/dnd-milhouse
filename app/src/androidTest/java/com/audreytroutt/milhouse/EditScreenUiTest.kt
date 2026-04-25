@@ -134,21 +134,31 @@ class EditScreenUiTest {
     }
 
     // ── Save button disabled until required field filled ──────────────────────
+    //
+    // UIAutomator reads accessibility node properties; on API 35+ Compose's
+    // TextButton(enabled = false) does not reliably surface isEnabled=false on
+    // the node that By.text("Save") resolves to.  We verify behaviour instead:
+    // clicking Save without the required field must keep us on the edit screen,
+    // and clicking it after filling the field must save and navigate back.
 
     @Test
     fun spellEdit_saveDisabledWithoutName_enabledAfterName() {
         openCharacter()
         waitForDesc("Add Spell")
         device.findObject(By.desc("Add Spell")).click()
-        waitForText("Save")
+        waitForText("Spell Name *")
 
-        val saveBtn = device.findObject(By.text("Save"))
-        assertFalse("Save should be disabled before name is entered", saveBtn.isEnabled)
+        // Tap Save with no name — disabled, so stays on edit screen
+        device.findObject(By.text("Save")).click()
+        assertNotNull("Still on edit screen — Save was disabled",
+            device.findObject(By.text("Spell Name *")))
 
+        // Fill name — Save should now work and return to list
         device.findObject(By.text("Spell Name *")).text = "Magic Missile"
-        device.wait(Until.hasObject(By.text("Save").enabled(true)), timeout)
-        assertNotNull("Save should be enabled after name entered",
-            device.findObject(By.text("Save").enabled(true)))
+        device.wait(Until.hasObject(By.text("Save")), timeout)
+        device.findObject(By.text("Save")).click()
+        assertNotNull("Magic Missile in list confirms Save fired",
+            waitForText("Magic Missile"))
     }
 
     @Test
@@ -157,15 +167,19 @@ class EditScreenUiTest {
         openTab("Abilities")
         waitForDesc("Add Ability")
         device.findObject(By.desc("Add Ability")).click()
-        waitForText("Save")
+        waitForText("Ability Name *")
 
-        val saveBtn = device.findObject(By.text("Save"))
-        assertFalse("Save should be disabled before name is entered", saveBtn.isEnabled)
+        // Tap Save with no name — disabled, so stays on edit screen
+        device.findObject(By.text("Save")).click()
+        assertNotNull("Still on edit screen — Save was disabled",
+            device.findObject(By.text("Ability Name *")))
 
+        // Fill name — Save should now work and return to list
         device.findObject(By.text("Ability Name *")).text = "Second Wind"
-        device.wait(Until.hasObject(By.text("Save").enabled(true)), timeout)
-        assertNotNull("Save should be enabled after name entered",
-            device.findObject(By.text("Save").enabled(true)))
+        device.wait(Until.hasObject(By.text("Save")), timeout)
+        device.findObject(By.text("Save")).click()
+        assertNotNull("Second Wind in list confirms Save fired",
+            waitForText("Second Wind"))
     }
 
     @Test
@@ -174,15 +188,19 @@ class EditScreenUiTest {
         openTab("Actions")
         waitForDesc("Add Action")
         device.findObject(By.desc("Add Action")).click()
-        waitForText("Save")
+        waitForText("Action Name *")
 
-        val saveBtn = device.findObject(By.text("Save"))
-        assertFalse("Save should be disabled before name is entered", saveBtn.isEnabled)
+        // Tap Save with no name — disabled, so stays on edit screen
+        device.findObject(By.text("Save")).click()
+        assertNotNull("Still on edit screen — Save was disabled",
+            device.findObject(By.text("Action Name *")))
 
+        // Fill name — Save should now work and return to list
         device.findObject(By.text("Action Name *")).text = "Longsword Attack"
-        device.wait(Until.hasObject(By.text("Save").enabled(true)), timeout)
-        assertNotNull("Save should be enabled after name entered",
-            device.findObject(By.text("Save").enabled(true)))
+        device.wait(Until.hasObject(By.text("Save")), timeout)
+        device.findObject(By.text("Save")).click()
+        assertNotNull("Longsword Attack in list confirms Save fired",
+            waitForText("Longsword Attack"))
     }
 
     @Test
@@ -191,15 +209,19 @@ class EditScreenUiTest {
         openTab("Notes")
         waitForDesc("Add Note")
         device.findObject(By.desc("Add Note")).click()
-        waitForText("Save")
+        waitForText("Title *")
 
-        val saveBtn = device.findObject(By.text("Save"))
-        assertFalse("Save should be disabled before title is entered", saveBtn.isEnabled)
+        // Tap Save with no title — disabled, so stays on edit screen
+        device.findObject(By.text("Save")).click()
+        assertNotNull("Still on edit screen — Save was disabled",
+            device.findObject(By.text("Title *")))
 
+        // Fill title — Save should now work and return to list
         device.findObject(By.text("Title *")).text = "Session notes"
-        device.wait(Until.hasObject(By.text("Save").enabled(true)), timeout)
-        assertNotNull("Save should be enabled after title entered",
-            device.findObject(By.text("Save").enabled(true)))
+        device.wait(Until.hasObject(By.text("Save")), timeout)
+        device.findObject(By.text("Save")).click()
+        assertNotNull("Session notes in list confirms Save fired",
+            waitForText("Session notes"))
     }
 
     // ── Saving navigates back and item appears in list ────────────────────────
