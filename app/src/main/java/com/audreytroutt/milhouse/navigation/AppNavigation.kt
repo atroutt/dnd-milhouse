@@ -3,6 +3,7 @@ package com.audreytroutt.milhouse.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.filled.PeopleAlt
 import androidx.compose.material.icons.filled.Shield
@@ -25,6 +26,7 @@ import com.audreytroutt.milhouse.ui.action.ActionEditScreen
 import com.audreytroutt.milhouse.ui.action.ActionListScreen
 import com.audreytroutt.milhouse.ui.character.CharacterEditScreen
 import com.audreytroutt.milhouse.ui.character.CharacterListScreen
+import com.audreytroutt.milhouse.ui.guide.GuideScreen
 import com.audreytroutt.milhouse.ui.note.NoteEditScreen
 import com.audreytroutt.milhouse.ui.note.NoteListScreen
 import com.audreytroutt.milhouse.ui.spell.SpellEditScreen
@@ -85,8 +87,13 @@ fun AppNavigation() {
             val characterId = backStack.arguments!!.getLong("characterId")
             CharacterTabs(
                 characterId = characterId,
-                onNavigateToCharacters = { rootNavController.popBackStack() }
+                onNavigateToCharacters = { rootNavController.popBackStack() },
+                onNavigateToGuide = { rootNavController.navigate("guide") }
             )
+        }
+
+        composable("guide") {
+            GuideScreen(onNavigateBack = { rootNavController.popBackStack() })
         }
     }
 }
@@ -101,7 +108,11 @@ private val editRoutes = setOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CharacterTabs(characterId: Long, onNavigateToCharacters: () -> Unit) {
+private fun CharacterTabs(
+    characterId: Long,
+    onNavigateToCharacters: () -> Unit,
+    onNavigateToGuide: () -> Unit
+) {
     val tabNavController = rememberNavController()
     val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -126,6 +137,9 @@ private fun CharacterTabs(characterId: Long, onNavigateToCharacters: () -> Unit)
                 TopAppBar(
                     title = { Text("$characterName — ${currentTab.label}") },
                     actions = {
+                        IconButton(onClick = onNavigateToGuide) {
+                            Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = "D&D Guide")
+                        }
                         TextButton(onClick = onNavigateToCharacters) {
                             Icon(Icons.Default.PeopleAlt, contentDescription = null)
                             Text("Switch")
