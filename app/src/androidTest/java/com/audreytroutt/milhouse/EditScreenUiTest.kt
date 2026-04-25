@@ -21,6 +21,12 @@ import org.junit.runner.RunWith
  * End-to-end UI tests using the real app and a real (in-device) database.
  * Each test pre-seeds one character, exercises the UI, then cleans up.
  *
+ * ⚠️  REQUIRES AN API 34 EMULATOR (Android 14).
+ * Espresso's InputManager fix in 3.6.x covers API 34 but not API 35+.
+ * Create one in Android Studio: Tools → Device Manager → + → pick any
+ * phone → x86 Images tab → API 34 → Finish.
+ * DaoTest has no such restriction — it doesn't use Espresso at all.
+ *
  * What's covered:
  *   - Save button is visible (not hidden by outer TopAppBar) on every edit screen type
  *   - Save button is disabled until required fields are filled

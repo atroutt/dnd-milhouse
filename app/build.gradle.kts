@@ -31,6 +31,14 @@ android {
             )
         }
     }
+    testOptions {
+        // Disable animations for more reliable UI tests.
+        // NOTE: EditScreenUiTest requires an API 34 emulator.
+        // Espresso's InputManager fix in 3.6.x only covers API 34;
+        // API 35+ broke it again and no stable Espresso release fixes it yet.
+        // DaoTest runs on any API level — it doesn't use Espresso at all.
+        animationsDisabled = true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
