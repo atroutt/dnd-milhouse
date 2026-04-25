@@ -37,27 +37,31 @@ class EditScreenUiTest {
     private var testCharacterId: Long = 0
 
     @Before
-    fun seedCharacter() = runBlocking {
-        app = composeTestRule.activity.application as MilhouseApplication
-        testCharacterId = app.database.characterDao().insert(
-            DndCharacter(
-                name = "UI Test Hero",
-                characterClass = "Fighter",
-                species = "Human",
-                colorIndex = 0,
-                iconIndex = 0
+    fun seedCharacter() {
+        runBlocking {
+            app = composeTestRule.activity.application as MilhouseApplication
+            testCharacterId = app.database.characterDao().insert(
+                DndCharacter(
+                    name = "UI Test Hero",
+                    characterClass = "Fighter",
+                    species = "Human",
+                    colorIndex = 0,
+                    iconIndex = 0
+                )
             )
-        )
+        }
     }
 
     @After
-    fun deleteCharacter() = runBlocking {
-        val db = app.database
-        db.spellDao().deleteAllForCharacter(testCharacterId)
-        db.abilityDao().deleteAllForCharacter(testCharacterId)
-        db.actionDao().deleteAllForCharacter(testCharacterId)
-        db.noteDao().deleteAllForCharacter(testCharacterId)
-        db.characterDao().getById(testCharacterId)?.let { db.characterDao().delete(it) }
+    fun deleteCharacter() {
+        runBlocking {
+            val db = app.database
+            db.spellDao().deleteAllForCharacter(testCharacterId)
+            db.abilityDao().deleteAllForCharacter(testCharacterId)
+            db.actionDao().deleteAllForCharacter(testCharacterId)
+            db.noteDao().deleteAllForCharacter(testCharacterId)
+            db.characterDao().getById(testCharacterId)?.let { db.characterDao().delete(it) }
+        }
     }
 
     // ── Helper: navigate into the character's tab screen ─────────────────────
