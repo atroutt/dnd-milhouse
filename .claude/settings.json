@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "changed=$(git diff HEAD --name-only 2>/dev/null; git log --oneline -5 --name-only --pretty=format: 2>/dev/null); if echo \"$changed\" | grep -qE '(ui/|navigation/|EditScreen|ListScreen)'; then matches=$(echo \"$changed\" | grep -E '(ui/|navigation/|EditScreen|ListScreen)' | sort -u | tr '\\n' '  '); printf '{\"systemMessage\": \"⚠️  UI files changed — check if EditScreenUiTest.kt needs updating!\\nChanged: %s\"}' \"$matches\"; fi",
+            "statusMessage": "Checking for UI changes..."
+          }
+        ]
+      }
+    ]
+  }
+}
