@@ -83,9 +83,11 @@ class EditScreenUiTest {
         device.findObject(By.text("UI Test Hero")).click()
     }
 
-    private fun openTab(contentDescription: String) {
-        device.wait(Until.hasObject(By.desc(contentDescription)), timeout)
-        device.findObject(By.desc(contentDescription)).click()
+    private fun openTab(label: String) {
+        // NavigationBarItem exposes itself via text (the label), not contentDescription,
+        // in UIAutomator's accessibility view — so use By.text() rather than By.desc().
+        device.wait(Until.hasObject(By.text(label)), timeout)
+        device.findObject(By.text(label)).click()
     }
 
     private fun waitForText(text: String) =
