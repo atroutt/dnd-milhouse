@@ -10,7 +10,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.audreytroutt.milhouse.data.model.DndCharacter
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -37,7 +37,7 @@ class EditScreenUiTest {
     private var testCharacterId: Long = 0
 
     @Before
-    fun seedCharacter() = runTest {
+    fun seedCharacter() = runBlocking {
         app = composeTestRule.activity.application as MilhouseApplication
         testCharacterId = app.database.characterDao().insert(
             DndCharacter(
@@ -51,7 +51,7 @@ class EditScreenUiTest {
     }
 
     @After
-    fun deleteCharacter() = runTest {
+    fun deleteCharacter() = runBlocking {
         val db = app.database
         db.spellDao().deleteAllForCharacter(testCharacterId)
         db.abilityDao().deleteAllForCharacter(testCharacterId)
