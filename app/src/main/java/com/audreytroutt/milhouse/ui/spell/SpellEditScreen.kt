@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
@@ -159,7 +160,8 @@ fun SpellEditScreen(
                 onValueChange = { name = it },
                 label = { Text("Spell Name *") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -186,14 +188,16 @@ fun SpellEditScreen(
                     onValueChange = { castingTime = it },
                     label = { Text("Casting Time") },
                     modifier = Modifier.weight(1f),
-                    singleLine = true
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                 )
                 OutlinedTextField(
                     value = range,
                     onValueChange = { range = it },
                     label = { Text("Range") },
                     modifier = Modifier.weight(1f),
-                    singleLine = true
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                 )
             }
 
@@ -203,14 +207,16 @@ fun SpellEditScreen(
                     onValueChange = { duration = it },
                     label = { Text("Duration") },
                     modifier = Modifier.weight(1f),
-                    singleLine = true
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                 )
                 OutlinedTextField(
                     value = components,
                     onValueChange = { components = it },
                     label = { Text("Components") },
                     modifier = Modifier.weight(1f),
-                    singleLine = true
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                 )
             }
 
@@ -219,7 +225,8 @@ fun SpellEditScreen(
                 onValueChange = { materialComponents = it },
                 label = { Text("Material Components") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
             )
 
             OutlinedTextField(
@@ -228,7 +235,8 @@ fun SpellEditScreen(
                 label = { Text("Classes") },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("e.g. Wizard, Sorcerer") },
-                singleLine = true
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
             )
 
             OutlinedTextField(
@@ -236,7 +244,8 @@ fun SpellEditScreen(
                 onValueChange = { description = it },
                 label = { Text("Description") },
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 4
+                minLines = 4,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
             )
 
             OutlinedTextField(
@@ -244,7 +253,8 @@ fun SpellEditScreen(
                 onValueChange = { higherLevels = it },
                 label = { Text("At Higher Levels") },
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 2
+                minLines = 2,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
             )
 
             SectionLabel("Properties")

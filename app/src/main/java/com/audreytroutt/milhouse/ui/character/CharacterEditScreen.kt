@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.audreytroutt.milhouse.MilhouseApplication
@@ -158,7 +160,8 @@ fun CharacterEditScreen(
                 onValueChange = { name = it },
                 label = { Text("Name *") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
             )
 
             DropdownField(
@@ -181,7 +184,8 @@ fun CharacterEditScreen(
                     label = { Text("Species") },
                     placeholder = { Text("e.g. Human, Elf, Dwarf…") },
                     modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryEditable),
-                    singleLine = true
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                 )
                 ExposedDropdownMenu(
                     expanded = speciesExpanded && speciesSuggestions.isNotEmpty(),

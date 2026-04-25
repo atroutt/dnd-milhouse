@@ -2,6 +2,7 @@ package com.audreytroutt.milhouse.ui.action
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -9,6 +10,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -136,7 +138,8 @@ fun ActionEditScreen(
                 onValueChange = { name = it },
                 label = { Text("Action Name *") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
             )
 
             DropdownField(
@@ -151,7 +154,8 @@ fun ActionEditScreen(
                 onValueChange = { description = it },
                 label = { Text("Description") },
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 4
+                minLines = 4,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
             )
 
             SectionLabel("Attack / Damage (optional)")
@@ -163,7 +167,8 @@ fun ActionEditScreen(
                     label = { Text("Damage Dice") },
                     placeholder = { Text("e.g. 2d6") },
                     modifier = Modifier.weight(1f),
-                    singleLine = true
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                 )
                 DropdownField(
                     label = "Damage Type",
@@ -181,14 +186,16 @@ fun ActionEditScreen(
                     label = { Text("To Hit Bonus") },
                     placeholder = { Text("e.g. +5") },
                     modifier = Modifier.weight(1f),
-                    singleLine = true
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                 )
                 OutlinedTextField(
                     value = range,
                     onValueChange = { range = it },
                     label = { Text("Range") },
                     modifier = Modifier.weight(1f),
-                    singleLine = true
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                 )
             }
 
@@ -198,7 +205,8 @@ fun ActionEditScreen(
                 label = { Text("Saving Throw") },
                 placeholder = { Text("e.g. DC 14 DEX") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
             )
         }
     }
