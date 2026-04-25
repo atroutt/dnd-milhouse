@@ -1,31 +1,28 @@
 package com.audreytroutt.milhouse
 
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
+import android.content.Intent
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import com.audreytroutt.milhouse.data.model.DndCharacter
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * End-to-end UI tests using the real app and a real (in-device) database.
- * Each test pre-seeds one character, exercises the UI, then cleans up.
+ * End-to-end UI tests using UIAutomator — works on any API level (including API 35+).
+ * Unlike Espresso / createAndroidComposeRule, UIAutomator drives the app through the
+ * accessibility layer and does not call InputManager.getInstance(), so the API-35
+ * Espresso breakage does not affect these tests.
  *
- * ⚠️  REQUIRES AN API 34 EMULATOR (Android 14).
- * Espresso's InputManager fix in 3.6.x covers API 34 but not API 35+.
- * Create one in Android Studio: Tools → Device Manager → + → pick any
- * phone → x86 Images tab → API 34 → Finish.
- * DaoTest has no such restriction — it doesn't use Espresso at all.
+ * Each test pre-seeds one character, launches the app, exercises the UI, then cleans up.
  *
  * What's covered:
  *   - Save button is visible (not hidden by outer TopAppBar) on every edit screen type
@@ -36,16 +33,19 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class EditScreenUiTest {
 
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
+    private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private val device = UiDevice.getInstance(instrumentation)
+    private val context = instrumentation.targetContext
+    private val pkg = context.packageName
+    private val timeout = 5_000L
 
     private lateinit var app: MilhouseApplication
     private var testCharacterId: Long = 0
 
     @Before
-    fun seedCharacter() {
+    fun seedAndLaunch() {
         runBlocking {
-            app = composeTestRule.activity.application as MilhouseApplication
+            app = instrumentation.targetContext.applicationContext as MilhouseApplication
             testCharacterId = app.database.characterDao().insert(
                 DndCharacter(
                     name = "UI Test Hero",
@@ -56,6 +56,12 @@ class EditScreenUiTest {
                 )
             )
         }
+
+        val intent = context.packageManager.getLaunchIntentForPackage(pkg)!!.apply {
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        }
+        context.startActivity(intent)
+        device.wait(Until.hasObject(By.pkg(pkg).depth(0)), timeout)
     }
 
     @After
@@ -70,47 +76,59 @@ class EditScreenUiTest {
         }
     }
 
-    // ── Helper: navigate into the character's tab screen ─────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private fun openCharacter() {
-        composeTestRule.onNodeWithText("UI Test Hero").performClick()
+        device.wait(Until.hasObject(By.text("UI Test Hero")), timeout)
+        device.findObject(By.text("UI Test Hero")).click()
     }
 
     private fun openTab(contentDescription: String) {
-        composeTestRule.onNodeWithContentDescription(contentDescription).performClick()
+        device.wait(Until.hasObject(By.desc(contentDescription)), timeout)
+        device.findObject(By.desc(contentDescription)).click()
     }
+
+    private fun waitForText(text: String) =
+        device.wait(Until.hasObject(By.text(text)), timeout)
+
+    private fun waitForDesc(desc: String) =
+        device.wait(Until.hasObject(By.desc(desc)), timeout)
 
     // ── Save button visibility ────────────────────────────────────────────────
 
     @Test
     fun spellEdit_saveButtonVisible_onNewSpell() {
         openCharacter()
-        composeTestRule.onNodeWithContentDescription("Add Spell").performClick()
-        composeTestRule.onNodeWithText("Save").assertIsDisplayed()
+        waitForDesc("Add Spell")
+        device.findObject(By.desc("Add Spell")).click()
+        assertNotNull("Save button should be visible", waitForText("Save"))
     }
 
     @Test
     fun abilityEdit_saveButtonVisible_onNewAbility() {
         openCharacter()
         openTab("Abilities")
-        composeTestRule.onNodeWithContentDescription("Add Ability").performClick()
-        composeTestRule.onNodeWithText("Save").assertIsDisplayed()
+        waitForDesc("Add Ability")
+        device.findObject(By.desc("Add Ability")).click()
+        assertNotNull("Save button should be visible", waitForText("Save"))
     }
 
     @Test
     fun actionEdit_saveButtonVisible_onNewAction() {
         openCharacter()
         openTab("Actions")
-        composeTestRule.onNodeWithContentDescription("Add Action").performClick()
-        composeTestRule.onNodeWithText("Save").assertIsDisplayed()
+        waitForDesc("Add Action")
+        device.findObject(By.desc("Add Action")).click()
+        assertNotNull("Save button should be visible", waitForText("Save"))
     }
 
     @Test
     fun noteEdit_saveButtonVisible_onNewNote() {
         openCharacter()
         openTab("Notes")
-        composeTestRule.onNodeWithContentDescription("Add Note").performClick()
-        composeTestRule.onNodeWithText("Save").assertIsDisplayed()
+        waitForDesc("Add Note")
+        device.findObject(By.desc("Add Note")).click()
+        assertNotNull("Save button should be visible", waitForText("Save"))
     }
 
     // ── Save button disabled until required field filled ──────────────────────
@@ -118,40 +136,68 @@ class EditScreenUiTest {
     @Test
     fun spellEdit_saveDisabledWithoutName_enabledAfterName() {
         openCharacter()
-        composeTestRule.onNodeWithContentDescription("Add Spell").performClick()
-        composeTestRule.onNodeWithText("Save").assertIsNotEnabled()
-        composeTestRule.onNodeWithText("Spell Name *").performTextInput("Magic Missile")
-        composeTestRule.onNodeWithText("Save").assertIsEnabled()
+        waitForDesc("Add Spell")
+        device.findObject(By.desc("Add Spell")).click()
+        waitForText("Save")
+
+        val saveBtn = device.findObject(By.text("Save"))
+        assertFalse("Save should be disabled before name is entered", saveBtn.isEnabled)
+
+        device.findObject(By.text("Spell Name *")).text = "Magic Missile"
+        device.wait(Until.hasObject(By.text("Save").enabled(true)), timeout)
+        assertNotNull("Save should be enabled after name entered",
+            device.findObject(By.text("Save").enabled(true)))
     }
 
     @Test
     fun abilityEdit_saveDisabledWithoutName_enabledAfterName() {
         openCharacter()
         openTab("Abilities")
-        composeTestRule.onNodeWithContentDescription("Add Ability").performClick()
-        composeTestRule.onNodeWithText("Save").assertIsNotEnabled()
-        composeTestRule.onNodeWithText("Ability Name *").performTextInput("Second Wind")
-        composeTestRule.onNodeWithText("Save").assertIsEnabled()
+        waitForDesc("Add Ability")
+        device.findObject(By.desc("Add Ability")).click()
+        waitForText("Save")
+
+        val saveBtn = device.findObject(By.text("Save"))
+        assertFalse("Save should be disabled before name is entered", saveBtn.isEnabled)
+
+        device.findObject(By.text("Ability Name *")).text = "Second Wind"
+        device.wait(Until.hasObject(By.text("Save").enabled(true)), timeout)
+        assertNotNull("Save should be enabled after name entered",
+            device.findObject(By.text("Save").enabled(true)))
     }
 
     @Test
     fun actionEdit_saveDisabledWithoutName_enabledAfterName() {
         openCharacter()
         openTab("Actions")
-        composeTestRule.onNodeWithContentDescription("Add Action").performClick()
-        composeTestRule.onNodeWithText("Save").assertIsNotEnabled()
-        composeTestRule.onNodeWithText("Action Name *").performTextInput("Longsword Attack")
-        composeTestRule.onNodeWithText("Save").assertIsEnabled()
+        waitForDesc("Add Action")
+        device.findObject(By.desc("Add Action")).click()
+        waitForText("Save")
+
+        val saveBtn = device.findObject(By.text("Save"))
+        assertFalse("Save should be disabled before name is entered", saveBtn.isEnabled)
+
+        device.findObject(By.text("Action Name *")).text = "Longsword Attack"
+        device.wait(Until.hasObject(By.text("Save").enabled(true)), timeout)
+        assertNotNull("Save should be enabled after name entered",
+            device.findObject(By.text("Save").enabled(true)))
     }
 
     @Test
     fun noteEdit_saveDisabledWithoutTitle_enabledAfterTitle() {
         openCharacter()
         openTab("Notes")
-        composeTestRule.onNodeWithContentDescription("Add Note").performClick()
-        composeTestRule.onNodeWithText("Save").assertIsNotEnabled()
-        composeTestRule.onNodeWithText("Title *").performTextInput("Session notes")
-        composeTestRule.onNodeWithText("Save").assertIsEnabled()
+        waitForDesc("Add Note")
+        device.findObject(By.desc("Add Note")).click()
+        waitForText("Save")
+
+        val saveBtn = device.findObject(By.text("Save"))
+        assertFalse("Save should be disabled before title is entered", saveBtn.isEnabled)
+
+        device.findObject(By.text("Title *")).text = "Session notes"
+        device.wait(Until.hasObject(By.text("Save").enabled(true)), timeout)
+        assertNotNull("Save should be enabled after title entered",
+            device.findObject(By.text("Save").enabled(true)))
     }
 
     // ── Saving navigates back and item appears in list ────────────────────────
@@ -159,30 +205,40 @@ class EditScreenUiTest {
     @Test
     fun spellEdit_saveNewSpell_appearsInList() {
         openCharacter()
-        composeTestRule.onNodeWithContentDescription("Add Spell").performClick()
-        composeTestRule.onNodeWithText("Spell Name *").performTextInput("Fireball")
-        composeTestRule.onNodeWithText("Save").performClick()
-        composeTestRule.onNodeWithText("Fireball").assertIsDisplayed()
+        waitForDesc("Add Spell")
+        device.findObject(By.desc("Add Spell")).click()
+        waitForText("Spell Name *")
+        device.findObject(By.text("Spell Name *")).text = "Fireball"
+        device.wait(Until.hasObject(By.text("Save").enabled(true)), timeout)
+        device.findObject(By.text("Save")).click()
+        assertNotNull("Fireball should appear in list after save", waitForText("Fireball"))
     }
 
     @Test
     fun abilityEdit_saveNewAbility_appearsInList() {
         openCharacter()
         openTab("Abilities")
-        composeTestRule.onNodeWithContentDescription("Add Ability").performClick()
-        composeTestRule.onNodeWithText("Ability Name *").performTextInput("Action Surge")
-        composeTestRule.onNodeWithText("Save").performClick()
-        composeTestRule.onNodeWithText("Action Surge").assertIsDisplayed()
+        waitForDesc("Add Ability")
+        device.findObject(By.desc("Add Ability")).click()
+        waitForText("Ability Name *")
+        device.findObject(By.text("Ability Name *")).text = "Action Surge"
+        device.wait(Until.hasObject(By.text("Save").enabled(true)), timeout)
+        device.findObject(By.text("Save")).click()
+        assertNotNull("Action Surge should appear in list after save", waitForText("Action Surge"))
     }
 
     @Test
     fun noteEdit_saveNewNote_appearsInList() {
         openCharacter()
         openTab("Notes")
-        composeTestRule.onNodeWithContentDescription("Add Note").performClick()
-        composeTestRule.onNodeWithText("Title *").performTextInput("Tavern encounter")
-        composeTestRule.onNodeWithText("Save").performClick()
-        composeTestRule.onNodeWithText("Tavern encounter").assertIsDisplayed()
+        waitForDesc("Add Note")
+        device.findObject(By.desc("Add Note")).click()
+        waitForText("Title *")
+        device.findObject(By.text("Title *")).text = "Tavern encounter"
+        device.wait(Until.hasObject(By.text("Save").enabled(true)), timeout)
+        device.findObject(By.text("Save")).click()
+        assertNotNull("Tavern encounter should appear in list after save",
+            waitForText("Tavern encounter"))
     }
 
     // ── Outer chrome hidden while editing ─────────────────────────────────────
@@ -190,26 +246,33 @@ class EditScreenUiTest {
     @Test
     fun editScreen_switchButtonHidden_whileEditing() {
         openCharacter()
-        composeTestRule.onNodeWithContentDescription("Add Spell").performClick()
-        // "Switch" button in outer TopAppBar should not exist on screen
-        composeTestRule.onNodeWithText("Switch").assertDoesNotExist()
+        waitForDesc("Add Spell")
+        device.findObject(By.desc("Add Spell")).click()
+        waitForText("Save")
+        assertNull("Switch button should not be visible while editing",
+            device.findObject(By.text("Switch")))
     }
 
     @Test
     fun editScreen_bottomTabsHidden_whileEditing() {
         openCharacter()
-        composeTestRule.onNodeWithContentDescription("Add Spell").performClick()
-        // Bottom tab labels shouldn't be visible while editing
-        composeTestRule.onNodeWithText("Spells").assertDoesNotExist()
-        composeTestRule.onNodeWithText("Abilities").assertDoesNotExist()
+        waitForDesc("Add Spell")
+        device.findObject(By.desc("Add Spell")).click()
+        waitForText("Save")
+        assertNull("Spells tab should not be visible while editing",
+            device.findObject(By.text("Spells")))
+        assertNull("Abilities tab should not be visible while editing",
+            device.findObject(By.text("Abilities")))
     }
 
     @Test
     fun editScreen_switchAndTabsReappear_afterNavigatingBack() {
         openCharacter()
-        composeTestRule.onNodeWithContentDescription("Add Spell").performClick()
-        composeTestRule.onNodeWithContentDescription("Back").performClick()
-        composeTestRule.onNodeWithText("Switch").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Spells").assertIsDisplayed()
+        waitForDesc("Add Spell")
+        device.findObject(By.desc("Add Spell")).click()
+        waitForText("Save")
+        device.findObject(By.desc("Back")).click()
+        assertNotNull("Switch button should reappear after back", waitForText("Switch"))
+        assertNotNull("Spells tab should reappear after back", waitForText("Spells"))
     }
 }

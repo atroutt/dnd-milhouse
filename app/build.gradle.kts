@@ -33,10 +33,9 @@ android {
     }
     testOptions {
         // Disable animations for more reliable UI tests.
-        // NOTE: EditScreenUiTest requires an API 34 emulator.
-        // Espresso's InputManager fix in 3.6.x only covers API 34;
-        // API 35+ broke it again and no stable Espresso release fixes it yet.
-        // DaoTest runs on any API level — it doesn't use Espresso at all.
+        // EditScreenUiTest uses UIAutomator (not Espresso/createAndroidComposeRule)
+        // so it runs on any API level including API 35+.
+        // DaoTest uses in-memory Room only — no UI layer at all.
         animationsDisabled = true
     }
     compileOptions {
@@ -72,6 +71,7 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.room.testing)
     androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.androidx.uiautomator)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
