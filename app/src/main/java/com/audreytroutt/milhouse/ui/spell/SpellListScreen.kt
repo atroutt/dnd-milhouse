@@ -42,12 +42,13 @@ fun SpellListScreen(
     val filter by viewModel.filter.collectAsState()
     val importState by viewModel.importState.collectAsState()
     val allClasses by viewModel.allClasses.collectAsState()
+    val totalSpellCount by viewModel.totalSpellCount.collectAsState()
 
     val levelChips = buildList {
+        add("Prepared" to filter.preparedOnly)
         add("All" to (filter.levelFilter == null && !filter.preparedOnly))
         add("Cantrips" to (filter.levelFilter == 0))
         (1..9).forEach { lvl -> add("Level $lvl" to (filter.levelFilter == lvl)) }
-        add("Prepared" to filter.preparedOnly)
     }
 
     Box(
@@ -161,7 +162,7 @@ fun SpellListScreen(
                 )
             }
 
-            if (spells.isEmpty() && importState == ImportState.Idle) {
+            if (spells.isEmpty() && totalSpellCount == 0 && importState == ImportState.Idle) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
@@ -183,6 +184,21 @@ fun SpellListScreen(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
+            } else if (spells.isEmpty() && filter.preparedOnly && importState == ImportState.Idle) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            "No prepared spells.",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            "Tap the bookmark icon on any spell to prepare it.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
