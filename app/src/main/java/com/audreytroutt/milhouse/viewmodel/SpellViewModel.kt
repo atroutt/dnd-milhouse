@@ -59,6 +59,10 @@ class SpellViewModel(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val totalSpellCount: StateFlow<Int> = repository.getAllForCharacter(characterId)
+        .map { it.size }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
     private val _editSpell = MutableStateFlow<Spell?>(null)
     val editSpell: StateFlow<Spell?> = _editSpell.asStateFlow()
 
