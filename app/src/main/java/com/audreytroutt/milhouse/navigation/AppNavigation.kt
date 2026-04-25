@@ -91,12 +91,24 @@ fun AppNavigation() {
     }
 }
 
+// Routes that have their own Scaffold + TopAppBar with Save/Delete/Back
+private val editRoutes = setOf(
+    "spell/new", "spell/{id}",
+    "ability/new", "ability/{id}",
+    "action/new", "action/{id}",
+    "note/new", "note/{id}"
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CharacterTabs(characterId: Long, onNavigateToCharacters: () -> Unit) {
     val tabNavController = rememberNavController()
     val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+
+    // On edit routes we step back and let the edit screen's own Scaffold/TopAppBar take over,
+    // so the Save button isn't hidden behind our outer TopAppBar.
+    val isEditRoute = currentDestination?.route in editRoutes
 
     val currentTab = bottomTabs.find { tab ->
         currentDestination?.hierarchy?.any { it.route == tab.route } == true
@@ -110,31 +122,35 @@ private fun CharacterTabs(characterId: Long, onNavigateToCharacters: () -> Unit)
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("$characterName — ${currentTab.label}") },
-                actions = {
-                    TextButton(onClick = onNavigateToCharacters) {
-                        Icon(Icons.Default.PeopleAlt, contentDescription = null)
-                        Text("Switch")
+            if (!isEditRoute) {
+                TopAppBar(
+                    title = { Text("$characterName — ${currentTab.label}") },
+                    actions = {
+                        TextButton(onClick = onNavigateToCharacters) {
+                            Icon(Icons.Default.PeopleAlt, contentDescription = null)
+                            Text("Switch")
+                        }
                     }
-                }
-            )
+                )
+            }
         },
         bottomBar = {
-            NavigationBar {
-                bottomTabs.forEach { tab ->
-                    NavigationBarItem(
-                        icon = { Icon(tab.icon, contentDescription = tab.label) },
-                        label = { Text(tab.label) },
-                        selected = currentDestination?.hierarchy?.any { it.route == tab.route } == true,
-                        onClick = {
-                            tabNavController.navigate(tab.route) {
-                                popUpTo(tabNavController.graph.findStartDestination().id) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
+            if (!isEditRoute) {
+                NavigationBar {
+                    bottomTabs.forEach { tab ->
+                        NavigationBarItem(
+                            icon = { Icon(tab.icon, contentDescription = tab.label) },
+                            label = { Text(tab.label) },
+                            selected = currentDestination?.hierarchy?.any { it.route == tab.route } == true,
+                            onClick = {
+                                tabNavController.navigate(tab.route) {
+                                    popUpTo(tabNavController.graph.findStartDestination().id) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
