@@ -20,18 +20,22 @@ class ActionRepository(private val database: MilhouseDatabase) {
         database.actionQueries.getById(id).executeAsOneOrNull()?.toModel()
 
     suspend fun insert(action: DndAction): Long {
-        database.actionQueries.insertNew(
-            characterId = action.characterId,
-            name = action.name,
-            actionType = action.actionType,
-            description = action.description,
-            damage = action.damage,
-            damageType = action.damageType,
-            toHit = action.toHit,
-            range = action.range,
-            savingThrow = action.savingThrow
-        )
-        return database.actionQueries.lastInsertRowId().executeAsOne()
+        var newId = 0L
+        database.transaction {
+            database.actionQueries.insertNew(
+                characterId = action.characterId,
+                name = action.name,
+                actionType = action.actionType,
+                description = action.description,
+                damage = action.damage,
+                damageType = action.damageType,
+                toHit = action.toHit,
+                range = action.range,
+                savingThrow = action.savingThrow
+            )
+            newId = database.actionQueries.lastInsertRowId().executeAsOne()
+        }
+        return newId
     }
 
     suspend fun insertAll(actions: List<DndAction>) {

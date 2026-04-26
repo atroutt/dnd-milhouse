@@ -20,15 +20,19 @@ class NoteRepository(private val database: MilhouseDatabase) {
         database.noteQueries.getById(id).executeAsOneOrNull()?.toModel()
 
     suspend fun insert(note: Note): Long {
-        database.noteQueries.insertNew(
-            characterId = note.characterId,
-            title = note.title,
-            content = note.content,
-            tags = note.tags,
-            createdAt = note.createdAt,
-            updatedAt = note.updatedAt
-        )
-        return database.noteQueries.lastInsertRowId().executeAsOne()
+        var newId = 0L
+        database.transaction {
+            database.noteQueries.insertNew(
+                characterId = note.characterId,
+                title = note.title,
+                content = note.content,
+                tags = note.tags,
+                createdAt = note.createdAt,
+                updatedAt = note.updatedAt
+            )
+            newId = database.noteQueries.lastInsertRowId().executeAsOne()
+        }
+        return newId
     }
 
     suspend fun update(note: Note) {

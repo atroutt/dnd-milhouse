@@ -20,17 +20,21 @@ class AbilityRepository(private val database: MilhouseDatabase) {
         database.abilityQueries.getById(id).executeAsOneOrNull()?.toModel()
 
     suspend fun insert(ability: Ability): Long {
-        database.abilityQueries.insertNew(
-            characterId = ability.characterId,
-            name = ability.name,
-            category = ability.category,
-            description = ability.description,
-            usesMax = ability.usesMax.toLong(),
-            usesRemaining = ability.usesRemaining.toLong(),
-            rechargeOn = ability.rechargeOn,
-            isPassive = if (ability.isPassive) 1L else 0L
-        )
-        return database.abilityQueries.lastInsertRowId().executeAsOne()
+        var newId = 0L
+        database.transaction {
+            database.abilityQueries.insertNew(
+                characterId = ability.characterId,
+                name = ability.name,
+                category = ability.category,
+                description = ability.description,
+                usesMax = ability.usesMax.toLong(),
+                usesRemaining = ability.usesRemaining.toLong(),
+                rechargeOn = ability.rechargeOn,
+                isPassive = if (ability.isPassive) 1L else 0L
+            )
+            newId = database.abilityQueries.lastInsertRowId().executeAsOne()
+        }
+        return newId
     }
 
     suspend fun insertAll(abilities: List<Ability>) {

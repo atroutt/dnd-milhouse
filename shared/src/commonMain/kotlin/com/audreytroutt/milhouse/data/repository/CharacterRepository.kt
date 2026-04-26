@@ -20,14 +20,18 @@ class CharacterRepository(private val database: MilhouseDatabase) {
         database.characterQueries.getById(id).executeAsOneOrNull()?.toModel()
 
     suspend fun insert(character: DndCharacter): Long {
-        database.characterQueries.insertNew(
-            name = character.name,
-            characterClass = character.characterClass,
-            species = character.species,
-            colorIndex = character.colorIndex.toLong(),
-            iconIndex = character.iconIndex.toLong()
-        )
-        return database.characterQueries.lastInsertRowId().executeAsOne()
+        var newId = 0L
+        database.transaction {
+            database.characterQueries.insertNew(
+                name = character.name,
+                characterClass = character.characterClass,
+                species = character.species,
+                colorIndex = character.colorIndex.toLong(),
+                iconIndex = character.iconIndex.toLong()
+            )
+            newId = database.characterQueries.lastInsertRowId().executeAsOne()
+        }
+        return newId
     }
 
     suspend fun update(character: DndCharacter) {

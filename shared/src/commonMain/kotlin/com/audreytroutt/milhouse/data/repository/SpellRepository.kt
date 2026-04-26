@@ -20,24 +20,28 @@ class SpellRepository(private val database: MilhouseDatabase) {
         database.spellQueries.getById(id).executeAsOneOrNull()?.toModel()
 
     suspend fun insert(spell: Spell): Long {
-        database.spellQueries.insertNew(
-            characterId = spell.characterId,
-            name = spell.name,
-            level = spell.level.toLong(),
-            school = spell.school,
-            castingTime = spell.castingTime,
-            range = spell.range,
-            duration = spell.duration,
-            components = spell.components,
-            materialComponents = spell.materialComponents,
-            description = spell.description,
-            higherLevels = spell.higherLevels,
-            classes = spell.classes,
-            isConcentration = if (spell.isConcentration) 1L else 0L,
-            isRitual = if (spell.isRitual) 1L else 0L,
-            isPrepared = if (spell.isPrepared) 1L else 0L
-        )
-        return database.spellQueries.lastInsertRowId().executeAsOne()
+        var newId = 0L
+        database.transaction {
+            database.spellQueries.insertNew(
+                characterId = spell.characterId,
+                name = spell.name,
+                level = spell.level.toLong(),
+                school = spell.school,
+                castingTime = spell.castingTime,
+                range = spell.range,
+                duration = spell.duration,
+                components = spell.components,
+                materialComponents = spell.materialComponents,
+                description = spell.description,
+                higherLevels = spell.higherLevels,
+                classes = spell.classes,
+                isConcentration = if (spell.isConcentration) 1L else 0L,
+                isRitual = if (spell.isRitual) 1L else 0L,
+                isPrepared = if (spell.isPrepared) 1L else 0L
+            )
+            newId = database.spellQueries.lastInsertRowId().executeAsOne()
+        }
+        return newId
     }
 
     suspend fun insertAll(spells: List<Spell>) {
