@@ -41,3 +41,9 @@ build/
 
 # Local configuration file (sdk path, etc)
 .claude/settings.local.json
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+DerivedData/
+*.xcworkspace/xcuserdata/
