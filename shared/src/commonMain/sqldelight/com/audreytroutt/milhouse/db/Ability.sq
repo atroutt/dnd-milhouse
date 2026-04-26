@@ -1,0 +1,40 @@
+CREATE TABLE IF NOT EXISTS abilities (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    characterId INTEGER NOT NULL DEFAULT 0,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL,
+    description TEXT NOT NULL,
+    usesMax INTEGER NOT NULL DEFAULT 0,
+    usesRemaining INTEGER NOT NULL DEFAULT 0,
+    rechargeOn TEXT NOT NULL DEFAULT 'None',
+    isPassive INTEGER NOT NULL DEFAULT 0
+);
+
+getAllForCharacter:
+SELECT * FROM abilities WHERE characterId = :characterId ORDER BY category ASC, name ASC;
+
+getById:
+SELECT * FROM abilities WHERE id = :id;
+
+insertNew:
+INSERT INTO abilities (characterId, name, category, description, usesMax, usesRemaining, rechargeOn, isPassive)
+VALUES (:characterId, :name, :category, :description, :usesMax, :usesRemaining, :rechargeOn, :isPassive);
+
+insertOrIgnore:
+INSERT OR IGNORE INTO abilities (characterId, name, category, description, usesMax, usesRemaining, rechargeOn, isPassive)
+VALUES (:characterId, :name, :category, :description, :usesMax, :usesRemaining, :rechargeOn, :isPassive);
+
+update:
+UPDATE abilities
+SET characterId = :characterId, name = :name, category = :category, description = :description,
+    usesMax = :usesMax, usesRemaining = :usesRemaining, rechargeOn = :rechargeOn, isPassive = :isPassive
+WHERE id = :id;
+
+delete:
+DELETE FROM abilities WHERE id = :id;
+
+deleteAllForCharacter:
+DELETE FROM abilities WHERE characterId = :characterId;
+
+lastInsertRowId:
+SELECT last_insert_rowid();

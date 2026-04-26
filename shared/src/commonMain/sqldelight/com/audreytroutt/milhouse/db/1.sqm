@@ -1,0 +1,23 @@
+-- Migration from schema version 1 to 2.
+-- This mirrors Room's MIGRATION_1_2: adds the characters table and characterId columns.
+CREATE TABLE IF NOT EXISTS characters (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    name TEXT NOT NULL,
+    characterClass TEXT NOT NULL,
+    species TEXT NOT NULL,
+    colorIndex INTEGER NOT NULL,
+    iconIndex INTEGER NOT NULL
+);
+
+INSERT INTO characters (name, characterClass, species, colorIndex, iconIndex)
+VALUES ('My Character', '', '', 0, 0);
+
+ALTER TABLE spells ADD COLUMN characterId INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE abilities ADD COLUMN characterId INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE actions ADD COLUMN characterId INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE notes ADD COLUMN characterId INTEGER NOT NULL DEFAULT 0;
+
+UPDATE spells SET characterId = 1;
+UPDATE abilities SET characterId = 1;
+UPDATE actions SET characterId = 1;
+UPDATE notes SET characterId = 1;
