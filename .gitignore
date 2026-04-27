@@ -4,6 +4,9 @@
 .claude/
 .DS_Store
 
+# Claude Code auto-memory (personal, not codebase docs)
+memory/
+
 # Build Artifacts (General & Android)
 build/
 bin/
