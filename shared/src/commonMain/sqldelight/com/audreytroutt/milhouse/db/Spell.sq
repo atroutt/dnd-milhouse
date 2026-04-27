@@ -1,0 +1,53 @@
+CREATE TABLE IF NOT EXISTS spells (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    characterId INTEGER NOT NULL DEFAULT 0,
+    name TEXT NOT NULL,
+    level INTEGER NOT NULL,
+    school TEXT NOT NULL,
+    castingTime TEXT NOT NULL,
+    range TEXT NOT NULL,
+    duration TEXT NOT NULL,
+    components TEXT NOT NULL,
+    materialComponents TEXT NOT NULL DEFAULT '',
+    description TEXT NOT NULL,
+    higherLevels TEXT NOT NULL DEFAULT '',
+    classes TEXT NOT NULL DEFAULT '',
+    isConcentration INTEGER NOT NULL DEFAULT 0,
+    isRitual INTEGER NOT NULL DEFAULT 0,
+    isPrepared INTEGER NOT NULL DEFAULT 0
+);
+
+getAllForCharacter:
+SELECT * FROM spells WHERE characterId = :characterId ORDER BY level ASC, name ASC;
+
+getById:
+SELECT * FROM spells WHERE id = :id;
+
+insertNew:
+INSERT INTO spells (characterId, name, level, school, castingTime, range, duration, components,
+    materialComponents, description, higherLevels, classes, isConcentration, isRitual, isPrepared)
+VALUES (:characterId, :name, :level, :school, :castingTime, :range, :duration, :components,
+    :materialComponents, :description, :higherLevels, :classes, :isConcentration, :isRitual, :isPrepared);
+
+insertOrIgnore:
+INSERT OR IGNORE INTO spells (characterId, name, level, school, castingTime, range, duration,
+    components, materialComponents, description, higherLevels, classes, isConcentration, isRitual, isPrepared)
+VALUES (:characterId, :name, :level, :school, :castingTime, :range, :duration, :components,
+    :materialComponents, :description, :higherLevels, :classes, :isConcentration, :isRitual, :isPrepared);
+
+update:
+UPDATE spells
+SET characterId = :characterId, name = :name, level = :level, school = :school,
+    castingTime = :castingTime, range = :range, duration = :duration, components = :components,
+    materialComponents = :materialComponents, description = :description, higherLevels = :higherLevels,
+    classes = :classes, isConcentration = :isConcentration, isRitual = :isRitual, isPrepared = :isPrepared
+WHERE id = :id;
+
+delete:
+DELETE FROM spells WHERE id = :id;
+
+deleteAllForCharacter:
+DELETE FROM spells WHERE characterId = :characterId;
+
+lastInsertRowId:
+SELECT last_insert_rowid();

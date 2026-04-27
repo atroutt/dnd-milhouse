@@ -1,0 +1,33 @@
+CREATE TABLE IF NOT EXISTS notes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    characterId INTEGER NOT NULL DEFAULT 0,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    tags TEXT NOT NULL DEFAULT '',
+    createdAt INTEGER NOT NULL,
+    updatedAt INTEGER NOT NULL
+);
+
+getAllForCharacter:
+SELECT * FROM notes WHERE characterId = :characterId ORDER BY updatedAt DESC;
+
+getById:
+SELECT * FROM notes WHERE id = :id;
+
+insertNew:
+INSERT INTO notes (characterId, title, content, tags, createdAt, updatedAt)
+VALUES (:characterId, :title, :content, :tags, :createdAt, :updatedAt);
+
+update:
+UPDATE notes
+SET characterId = :characterId, title = :title, content = :content, tags = :tags, updatedAt = :updatedAt
+WHERE id = :id;
+
+delete:
+DELETE FROM notes WHERE id = :id;
+
+deleteAllForCharacter:
+DELETE FROM notes WHERE characterId = :characterId;
+
+lastInsertRowId:
+SELECT last_insert_rowid();

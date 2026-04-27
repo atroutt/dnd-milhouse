@@ -1,0 +1,41 @@
+CREATE TABLE IF NOT EXISTS actions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    characterId INTEGER NOT NULL DEFAULT 0,
+    name TEXT NOT NULL,
+    actionType TEXT NOT NULL,
+    description TEXT NOT NULL,
+    damage TEXT NOT NULL DEFAULT '',
+    damageType TEXT NOT NULL DEFAULT '',
+    toHit TEXT NOT NULL DEFAULT '',
+    range TEXT NOT NULL DEFAULT '',
+    savingThrow TEXT NOT NULL DEFAULT ''
+);
+
+getAllForCharacter:
+SELECT * FROM actions WHERE characterId = :characterId ORDER BY actionType ASC, name ASC;
+
+getById:
+SELECT * FROM actions WHERE id = :id;
+
+insertNew:
+INSERT INTO actions (characterId, name, actionType, description, damage, damageType, toHit, range, savingThrow)
+VALUES (:characterId, :name, :actionType, :description, :damage, :damageType, :toHit, :range, :savingThrow);
+
+insertOrIgnore:
+INSERT OR IGNORE INTO actions (characterId, name, actionType, description, damage, damageType, toHit, range, savingThrow)
+VALUES (:characterId, :name, :actionType, :description, :damage, :damageType, :toHit, :range, :savingThrow);
+
+update:
+UPDATE actions
+SET characterId = :characterId, name = :name, actionType = :actionType, description = :description,
+    damage = :damage, damageType = :damageType, toHit = :toHit, range = :range, savingThrow = :savingThrow
+WHERE id = :id;
+
+delete:
+DELETE FROM actions WHERE id = :id;
+
+deleteAllForCharacter:
+DELETE FROM actions WHERE characterId = :characterId;
+
+lastInsertRowId:
+SELECT last_insert_rowid();

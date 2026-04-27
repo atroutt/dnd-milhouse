@@ -7,14 +7,19 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import com.audreytroutt.milhouse.data.model.DndCharacter
+import com.audreytroutt.milhouse.data.repository.AbilityRepository
+import com.audreytroutt.milhouse.data.repository.ActionRepository
+import com.audreytroutt.milhouse.data.repository.CharacterRepository
+import com.audreytroutt.milhouse.data.repository.NoteRepository
+import com.audreytroutt.milhouse.data.repository.SpellRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.GlobalContext
 
 /**
  * End-to-end UI tests using UIAutomator — works on any API level (including API 35+).
@@ -39,14 +44,12 @@ class EditScreenUiTest {
     private val pkg = context.packageName
     private val timeout = 5_000L
 
-    private lateinit var app: MilhouseApplication
     private var testCharacterId: Long = 0
 
     @Before
     fun seedAndLaunch() {
         runBlocking {
-            app = instrumentation.targetContext.applicationContext as MilhouseApplication
-            testCharacterId = app.database.characterDao().insert(
+            testCharacterId = GlobalContext.get().get<CharacterRepository>().insert(
                 DndCharacter(
                     name = "UI Test Hero",
                     characterClass = "Fighter",
@@ -67,12 +70,17 @@ class EditScreenUiTest {
     @After
     fun deleteCharacter() {
         runBlocking {
-            val db = app.database
-            db.spellDao().deleteAllForCharacter(testCharacterId)
-            db.abilityDao().deleteAllForCharacter(testCharacterId)
-            db.actionDao().deleteAllForCharacter(testCharacterId)
-            db.noteDao().deleteAllForCharacter(testCharacterId)
-            db.characterDao().getById(testCharacterId)?.let { db.characterDao().delete(it) }
+            val koin = GlobalContext.get()
+            val characterRepo = koin.get<CharacterRepository>()
+            characterRepo.getById(testCharacterId)?.let { character ->
+                characterRepo.delete(
+                    character,
+                    koin.get<SpellRepository>(),
+                    koin.get<AbilityRepository>(),
+                    koin.get<ActionRepository>(),
+                    koin.get<NoteRepository>()
+                )
+            }
         }
     }
 
@@ -137,7 +145,7 @@ class EditScreenUiTest {
     //
     // UIAutomator reads accessibility node properties; on API 35+ Compose's
     // TextButton(enabled = false) does not reliably surface isEnabled=false on
-    // the node that By.text("Save") resolves to.  We verify behaviour instead:
+    // the node that By.text("Save") resolves to.  We verify behavior instead:
     // clicking Save without the required field must keep us on the edit screen,
     // and clicking it after filling the field must save and navigate back.
 
@@ -146,14 +154,12 @@ class EditScreenUiTest {
         openCharacter()
         waitForDesc("Add Spell")
         device.findObject(By.desc("Add Spell")).click()
-        waitForText("Spell Name *")
+        waitForText("Save")
 
-        // Tap Save with no name — disabled, so stays on edit screen
         device.findObject(By.text("Save")).click()
         assertNotNull("Still on edit screen — Save was disabled",
             device.findObject(By.text("Spell Name *")))
 
-        // Fill name — Save should now work and return to list
         device.findObject(By.text("Spell Name *")).text = "Magic Missile"
         device.wait(Until.hasObject(By.text("Save")), timeout)
         device.findObject(By.text("Save")).click()
@@ -167,14 +173,12 @@ class EditScreenUiTest {
         openTab("Abilities")
         waitForDesc("Add Ability")
         device.findObject(By.desc("Add Ability")).click()
-        waitForText("Ability Name *")
+        waitForText("Save")
 
-        // Tap Save with no name — disabled, so stays on edit screen
         device.findObject(By.text("Save")).click()
         assertNotNull("Still on edit screen — Save was disabled",
             device.findObject(By.text("Ability Name *")))
 
-        // Fill name — Save should now work and return to list
         device.findObject(By.text("Ability Name *")).text = "Second Wind"
         device.wait(Until.hasObject(By.text("Save")), timeout)
         device.findObject(By.text("Save")).click()
@@ -188,14 +192,12 @@ class EditScreenUiTest {
         openTab("Actions")
         waitForDesc("Add Action")
         device.findObject(By.desc("Add Action")).click()
-        waitForText("Action Name *")
+        waitForText("Save")
 
-        // Tap Save with no name — disabled, so stays on edit screen
         device.findObject(By.text("Save")).click()
         assertNotNull("Still on edit screen — Save was disabled",
             device.findObject(By.text("Action Name *")))
 
-        // Fill name — Save should now work and return to list
         device.findObject(By.text("Action Name *")).text = "Longsword Attack"
         device.wait(Until.hasObject(By.text("Save")), timeout)
         device.findObject(By.text("Save")).click()
@@ -209,14 +211,12 @@ class EditScreenUiTest {
         openTab("Notes")
         waitForDesc("Add Note")
         device.findObject(By.desc("Add Note")).click()
-        waitForText("Title *")
+        waitForText("Save")
 
-        // Tap Save with no title — disabled, so stays on edit screen
         device.findObject(By.text("Save")).click()
         assertNotNull("Still on edit screen — Save was disabled",
             device.findObject(By.text("Title *")))
 
-        // Fill title — Save should now work and return to list
         device.findObject(By.text("Title *")).text = "Session notes"
         device.wait(Until.hasObject(By.text("Save")), timeout)
         device.findObject(By.text("Save")).click()
