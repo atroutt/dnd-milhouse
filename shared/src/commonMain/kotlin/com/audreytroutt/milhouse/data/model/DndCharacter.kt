@@ -4,11 +4,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.Anchor
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.Cyclone
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Flare
+import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.SelfImprovement
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.ui.graphics.Color
@@ -54,6 +60,12 @@ val CHARACTER_ICONS: List<ImageVector> = listOf(
     Icons.Default.AcUnit,
     Icons.Default.Cyclone,
     Icons.Default.Anchor,
+    Icons.Default.Shield,
+    Icons.Default.Bolt,
+    Icons.Default.Pets,
+    Icons.Default.Flare,
+    Icons.Default.Favorite,
+    Icons.Default.Flight,
 )
 
 fun DndCharacter.accentColor(): Color =
