@@ -49,4 +49,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.uiautomator)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.sqldelight.android.driver)
 }
