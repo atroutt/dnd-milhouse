@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		6D97A0C000000000000000B1 /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D97A0C000000000000000A7 /* iOSApp.swift */; };
 		6D97A0C000000000000000B2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D97A0C000000000000000A8 /* ContentView.swift */; };
+		6D97A0C000000000000000B3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D97A0C000000000000000AA /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -16,6 +17,7 @@
 		6D97A0C000000000000000A7 /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
 		6D97A0C000000000000000A8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		6D97A0C000000000000000A9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6D97A0C000000000000000AA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,6 +50,7 @@
 		6D97A0C000000000000000A6 /* iosApp */ = {
 			isa = PBXGroup;
 			children = (
+				6D97A0C000000000000000AA /* Assets.xcassets */,
 				6D97A0C000000000000000A7 /* iOSApp.swift */,
 				6D97A0C000000000000000A8 /* ContentView.swift */,
 				6D97A0C000000000000000A9 /* Info.plist */,
@@ -114,6 +117,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D97A0C000000000000000B3 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,6 +282,7 @@
 					shared,
 					"-lsqlite3",
 				);
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				PRODUCT_BUNDLE_IDENTIFIER = com.audreytroutt.milhouse;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -310,6 +315,7 @@
 					shared,
 					"-lsqlite3",
 				);
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				PRODUCT_BUNDLE_IDENTIFIER = com.audreytroutt.milhouse;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

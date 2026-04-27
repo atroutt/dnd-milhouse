@@ -87,6 +87,11 @@ val SPECIES_DATA = listOf(
         SpeciesTrait("Mindlink", "You can speak telepathically to any creature you can see within 60 feet."),
         SpeciesTrait("Severed from Dreams", "Kalashtar don't dream and are immune to spells that require you to dream."),
     )),
+    SpeciesEntry("Kenku", listOf(
+        SpeciesTrait("Expert Duplication", "When you copy writing or craftwork produced by yourself or someone else, you have advantage on any ability checks you make to produce an exact duplicate."),
+        SpeciesTrait("Kenku Recall", "You have proficiency in two skills of your choice. Additionally, when you make an ability check using any skill in which you have proficiency, you can give yourself advantage on the check. You can use this advantage a number of times equal to your proficiency bonus, regaining all uses after a long rest."),
+        SpeciesTrait("Mimicry", "You can accurately mimic sounds you have heard, including voices. A creature that hears the sounds can tell they are imitations only with a successful Wisdom (Insight) check against a DC of 8 + your proficiency bonus + your Charisma modifier."),
+    )),
     SpeciesEntry("Kithkin", listOf(
         SpeciesTrait("Brave", "You have advantage on saving throws you make to avoid or end the frightened condition."),
         SpeciesTrait("Kithkin Nimbleness", "You can move through the space of any creature that is of a size larger than yours."),
